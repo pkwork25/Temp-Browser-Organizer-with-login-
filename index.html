@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nexmark — Your Digital Shelf</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet"/>
+  <!-- External libraries loaded at end of body to avoid blocking buttons -->
+</head>
+<body>
+<!-- Auth gate -->
+<script>
+(function(){
+  const user=localStorage.getItem('nx_session_user');
+  const offline=localStorage.getItem('nx_offline_mode');
+  if(!user&&!offline){
+    const hasSB=localStorage.getItem('nx_sb_url')&&localStorage.getItem('nx_sb_anon');
+    if(hasSB) window.location.replace('login.html');
+  }
+})();
+</script>
+
+<!-- ═══════ SIDEBAR ═══════ -->
+<div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileNav()"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <span class="logo-icon">⬡</span>
+    <span class="logo-text">Nexmark</span>
+  </div>
+  <!-- User pill -->
+  <div id="sidebar-user-pill" style="margin:0 10px 6px;padding:8px 10px;background:var(--bg3);border-radius:var(--r-sm);border:1px solid var(--border);display:none;align-items:center;gap:8px;cursor:pointer" onclick="switchPanel('settings')">
+    <div style="width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0" id="user-avatar-letter">?</div>
+    <div style="min-width:0;flex:1">
+      <div style="font-size:11px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="user-display-name">User</div>
+      <div style="font-size:10px;color:var(--green)">● Synced</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <button class="nav-btn active" data-panel="bookmarks" title="Bookmarks">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>Bookmarks</span>
+    </button>
+    <button class="nav-btn" data-panel="notes" title="Notes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span>Notes</span>
+    </button>
+    <button class="nav-btn" data-panel="cloud" title="Cloud">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg><span>Cloud</span>
+    </button>
+    <button class="nav-btn" data-panel="apps" title="Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="9" height="9" rx="1"/><rect x="13" y="2" width="9" height="9" rx="1"/><rect x="2" y="13" width="9" height="9" rx="1"/><rect x="13" y="13" width="9" height="9" rx="1"/></svg><span>Apps</span>
+    </button>
+    <button class="nav-btn" data-panel="todos" title="Todos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>Todos</span>
+    </button>
+    <button class="nav-btn" data-panel="books" title="Books">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Books</span>
+    </button>
+    <button class="nav-btn" data-panel="music" title="Music">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span>Music</span>
+    </button>
+    <button class="nav-btn" data-panel="filetools" title="Files &amp; Related Tools">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg><span>Files</span>
+    </button>
+    <div class="nav-divider"></div>
+    <button class="nav-btn" data-panel="notifications" title="Notifications" style="position:relative">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span>Alerts</span>
+      <span class="notif-badge" id="notif-badge" style="display:none">0</span>
+    </button>
+    <button class="nav-btn" data-panel="calendar" title="Calendar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Calendar</span>
+    </button>
+    <button class="nav-btn" id="nav-account-btn" title="Account" onclick="handleAccountNav()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Account</span>
+    </button>
+    <button class="nav-btn" data-panel="settings" title="Settings" style="margin-top:auto">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>Settings</span>
+    </button>
+  </nav>
+  <div class="sidebar-stats">
+    <div class="stat"><span class="stat-num" id="stat-bm">0</span><span class="stat-label">Bookmarks</span></div>
+    <div class="stat"><span class="stat-num" id="stat-notes">0</span><span class="stat-label">Notes</span></div>
+    <div class="stat"><span class="stat-num" id="stat-todos">0</span><span class="stat-label">Todos</span></div>
+  </div>
+</aside>
+
+<!-- ═══════ MAIN ═══════ -->
+<main class="main">
+
+<!-- ─── BOOKMARKS ─── -->
+<section class="panel active" id="panel-bookmarks">
+  <header class="panel-header">
+    <div class="panel-title-group">
+      <button class="mobile-hamburger" onclick="openMobileNav()" title="Menu">☰</button>
+      <h1 class="panel-title">Bookmarks</h1><p class="panel-sub">Your curated web shelf</p>
+    </div>
+    <div class="panel-actions">
+      <div class="search-wrap"><svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="bm-search" class="search-input" placeholder="Search bookmarks…"/></div>
+      <select id="bm-filter" class="filter-select"><option value="all">All Tags</option></select>
+      <div class="view-toggle" id="bm-view-toggle">
+        <button class="view-btn active" data-view="grid" title="Grid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
+        <button class="view-btn" data-view="list" title="List"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+        <button class="view-btn" data-view="compact" title="Compact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"><line x1="3" y1="5" x2="21" y2="5"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="13" x2="21" y2="13"/><line x1="3" y1="17" x2="21" y2="17"/></svg></button>
+        <button class="view-btn" data-view="magazine" title="Magazine"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"><rect x="3" y="3" width="18" height="7"/><rect x="3" y="14" width="8" height="7"/><rect x="13" y="14" width="8" height="7"/></svg></button>
+      </div>
+      <button class="btn-primary" id="btn-add-bm" onclick="openAddBmModal()">+ Add</button>
+    </div>
+  </header>
+  <div class="bm-tabs">
+    <button class="bm-tab" data-tab="groups">📁 Groups</button>
+    <button class="bm-tab" data-tab="tags">🏷 By Tags</button>
+    <button class="bm-tab" data-tab="all">⊞ All</button>
+    <div class="bm-tab-actions" id="bm-tab-actions-groups" style="display:none">
+      <button class="btn-outline btn-sm" id="btn-add-group" onclick="openAddGroupModal()">+ New Group</button>
+      <label class="btn-outline btn-sm" style="cursor:pointer">↑ Import Links<input type="file" id="import-links-file" accept=".txt,.csv,.md,.html,.htm" style="display:none" onchange="importLinksFromFile(event)"/></label>
+    </div>
+  </div>
+  <div class="bm-tab-content active" id="bm-tab-groups">
+    <div class="groups-container" id="groups-container"></div>
+    <div class="empty-state" id="groups-empty"><div class="empty-icon">⊞</div><p>No groups yet.<br/>Create a group or import links from a file.</p></div>
+  </div>
+  <div class="bm-tab-content" id="bm-tab-tags">
+    <div class="tags-view-container" id="tags-view-container"></div>
+    <div class="empty-state" id="tags-empty"><div class="empty-icon">🏷</div><p>No tags yet.</p></div>
+  </div>
+  <div class="bm-tab-content" id="bm-tab-all">
+    <div class="bookmarks-grid" id="bm-grid"></div>
+    <div class="empty-state" id="bm-empty"><div class="empty-icon">⬡</div><p>Your shelf is empty.<br/>Add your first bookmark.</p></div>
+  </div>
+</section>
+
+<!-- ─── NOTES ─── -->
+<section class="panel" id="panel-notes">
+  <header class="panel-header">
+    <div class="panel-title-group"><h1 class="panel-title">Notes</h1><p class="panel-sub">Quick thoughts, always at hand</p></div>
+    <div class="panel-actions"><span id="note-save-ind" style="font-size:11px;color:var(--green);opacity:0;transition:opacity .3s;margin-right:8px"></span><input type="text" id="notes-search" class="search-input" placeholder="Search notes…" style="width:220px"/><button class="btn-primary" id="btn-add-note" onclick="createNote()">+ New Note</button></div>
+  </header>
+  <div class="notes-layout">
+    <div class="notes-list" id="notes-list"></div>
+    <div class="note-editor" id="note-editor"><div class="note-editor-placeholder"><span>← Select or create a note</span></div></div>
+  </div>
+  <div class="empty-state" id="notes-empty" style="display:none"><div class="empty-icon">✎</div><p>No notes yet.</p></div>
+</section>
+
+<!-- ─── CLOUD ─── -->
+<section class="panel" id="panel-cloud">
+  <header class="panel-header">
+    <div class="panel-title-group"><h1 class="panel-title">Cloud</h1><p class="panel-sub">Storage & file access</p></div>
+    <div class="panel-actions">
+      <button class="btn-outline btn-sm" id="btn-drive-upload" onclick="triggerDriveUpload()" style="display:none">↑ Upload to Drive</button>
+      <input type="file" id="drive-upload-input" style="display:none" multiple onchange="uploadFilesToDrive(event)"/>
+      <button class="btn-primary" id="btn-add-cloud" onclick="openModal('cloud-modal')">+ Add File Link</button>
+    </div>
+  </header>
+  <div class="bm-tabs">
+    <button class="bm-tab active" data-tab="cloud-links">🔗 Saved Links</button>
+    <button class="bm-tab" data-tab="cloud-gdrive">📂 Google Drive</button>
+    <button class="bm-tab" data-tab="cloud-mega">🔴 MEGA</button>
+    <button class="bm-tab" data-tab="cloud-dropbox">🔵 Dropbox</button>
+    <button class="bm-tab" data-tab="cloud-onedrive">☁ OneDrive</button>
+  </div>
+  <div class="bm-tab-content active" id="bm-tab-cloud-links">
+    <div class="cloud-grid" id="cloud-grid"></div>
+    <div class="empty-state" id="cloud-empty"><div class="empty-icon">☁</div><p>No cloud files linked yet.</p></div>
+  </div>
+  <div class="bm-tab-content" id="bm-tab-cloud-gdrive">
+    <div class="cloud-drive-panel" id="gdrive-panel">
+      <div class="cloud-connect-prompt" id="gdrive-connect-prompt">
+        <div class="cloud-connect-icon" style="font-size:56px">📂</div>
+        <h3>Connect Google Drive</h3>
+        <p>Browse, upload, delete and manage your Google Drive files directly from Nexmark.</p>
+        <button class="btn-primary" onclick="connectGDrive()">Connect Google Drive</button>
+        <p class="settings-note" id="gdrive-status">Not connected</p>
+      </div>
+      <div class="gdrive-browser" id="gdrive-browser" style="display:none">
+        <div class="drive-toolbar">
+          <div class="drive-breadcrumb" id="drive-breadcrumb"><span class="crumb active">My Drive</span></div>
+          <div class="drive-toolbar-actions">
+            <input type="text" class="search-input" id="drive-search" placeholder="Search Drive…" style="width:180px" oninput="debouncedDriveSearch(this.value)"/>
+            <button class="btn-outline btn-sm" onclick="triggerDriveUpload()">↑ Upload</button>
+            <button class="btn-outline btn-sm" onclick="createDriveFolder()">+ New Folder</button>
+            <button class="btn-outline btn-sm" onclick="loadDriveFiles('root')">↻ Refresh</button>
+            <button class="btn-outline btn-sm" onclick="disconnectGDrive()">Disconnect</button>
+          </div>
+        </div>
+        <div class="drive-view-toggle">
+          <button class="view-btn active" id="drive-view-grid" onclick="setDriveView('grid')">⊞ Grid</button>
+          <button class="view-btn" id="drive-view-list" onclick="setDriveView('list')">☰ List</button>
+          <select id="drive-sort" class="filter-select" style="font-size:12px;padding:4px 8px" onchange="sortDriveFiles(this.value)">
+            <option value="name">Sort: Name</option>
+            <option value="modified">Sort: Modified</option>
+            <option value="size">Sort: Size</option>
+            <option value="type">Sort: Type</option>
+          </select>
+        </div>
+        <div class="drive-files-grid" id="drive-files-grid"><div class="drive-loading">Loading…</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="bm-tab-content" id="bm-tab-cloud-mega">
+    <div class="cloud-connect-prompt">
+      <div style="font-size:48px">🔴</div><h3>MEGA Storage</h3>
+      <p>MEGA's API requires a dedicated SDK. Open MEGA in a new tab and paste share links back here using "+ Add File Link".</p>
+      <a href="https://mega.nz" target="_blank" class="btn-primary" style="text-decoration:none;display:inline-block">Open MEGA ↗</a>
+    </div>
+  </div>
+  <div class="bm-tab-content" id="bm-tab-cloud-dropbox">
+    <div class="cloud-connect-prompt">
+      <div style="font-size:48px">🔵</div><h3>Dropbox</h3>
+      <p>Full Dropbox integration coming soon. Paste Dropbox share links using "+ Add File Link".</p>
+      <a href="https://dropbox.com" target="_blank" class="btn-primary" style="text-decoration:none;display:inline-block">Open Dropbox ↗</a>
+    </div>
+  </div>
+  <div class="bm-tab-content" id="bm-tab-cloud-onedrive">
+    <div class="cloud-connect-prompt">
+      <div style="font-size:48px">☁</div><h3>OneDrive</h3>
+      <p>Full OneDrive integration coming soon. Paste OneDrive share links using "+ Add File Link".</p>
+      <a href="https://onedrive.live.com" target="_blank" class="btn-primary" style="text-decoration:none;display:inline-block">Open OneDrive ↗</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── APPS ─── -->
+<section class="panel" id="panel-apps">
+  <header class="panel-header">
+    <div class="panel-title-group"><h1 class="panel-title">Apps</h1><p class="panel-sub">Your mini workspace</p></div>
+  </header>
+  <div class="apps-grid">
+    <div class="app-card" onclick="openApp('whiteboard')">
+      <div class="app-card-icon" style="background:#7c6af720;color:#7c6af7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9l2 2 4-4"/><path d="M7 15h10"/></svg></div>
+      <div class="app-card-info"><div class="app-card-name">Whiteboard</div><div class="app-card-desc">Draw, sketch, brainstorm. Save sessions.</div></div><span class="app-card-arrow">›</span>
+    </div>
+    <div class="app-card" onclick="switchPanel('todos')">
+      <div class="app-card-icon" style="background:#2ec49e20;color:#2ec49e"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+      <div class="app-card-info"><div class="app-card-name">Todo & Habits</div><div class="app-card-desc">Tasks, habit tracker, goal templates.</div></div><span class="app-card-arrow">›</span>
+    </div>
+    <div class="app-card" onclick="switchPanel('books')">
+      <div class="app-card-icon" style="background:#f0b42920;color:#f0b429"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+      <div class="app-card-info"><div class="app-card-name">Book Library</div><div class="app-card-desc">Track reading, built-in PDF/EPUB reader.</div></div><span class="app-card-arrow">›</span>
+    </div>
+    <div class="app-card" onclick="switchPanel('filetools')">
+      <div class="app-card-icon" style="background:#38bdf820;color:#38bdf8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div class="app-card-info"><div class="app-card-name">Files &amp; Related Tools</div><div class="app-card-desc">PDF editor, converter, OCR, image tools.</div></div><span class="app-card-arrow">›</span>
+    </div>
+    <div class="app-card" onclick="switchPanel('music')">
+      <div class="app-card-icon" style="background:#f0629220;color:#f06292"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+      <div class="app-card-info"><div class="app-card-name">Music Player</div><div class="app-card-desc">Play local files. Spotify & YT Music links.</div></div><span class="app-card-arrow">›</span>
+    </div>
+    <div class="app-card" onclick="openApp('promptmaker')">
+      <div class="app-card-icon" style="background:#ab47bc20;color:#ab47bc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <div class="app-card-info"><div class="app-card-name">Prompt Maker</div><div class="app-card-desc">AI-optimised prompts via Claude API.</div></div><span class="app-card-arrow">›</span>
+    </div>
+    <div class="app-card" onclick="openApp('pricetracker')">
+      <div class="app-card-icon" style="background:#ff704320;color:#ff7043"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      <div class="app-card-info"><div class="app-card-name">Price Tracker</div><div class="app-card-desc">Track product prices, compare, set alerts.</div></div><span class="app-card-arrow">›</span>
+    </div>
+    <div class="app-card" onclick="openApp('nexmeet')">
+      <div class="app-card-icon" style="background:#22d3a020;color:#22d3a0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
+      <div class="app-card-info"><div class="app-card-name">NexMeet</div><div class="app-card-desc">Instant video rooms with AI notetaker.</div></div><span class="app-card-arrow">›</span>
+    </div>
+    <div class="app-card" onclick="openApp('presentations')">
+      <div class="app-card-icon" style="background:#7c6af720;color:#7c6af7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+      <div class="app-card-info"><div class="app-card-name">Presentation Maker</div><div class="app-card-desc">AI slides, templates, export .pptx</div></div><span class="app-card-arrow">›</span>
+    </div>
+    <div class="app-card" onclick="openApp('emailgen')">
+      <div class="app-card-icon" style="background:#22d3a020;color:#22d3a0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+      <div class="app-card-info"><div class="app-card-name">Email Generator</div><div class="app-card-desc">AI-crafted professional emails.</div></div><span class="app-card-arrow">›</span>
+    </div>
+    <div class="app-card" onclick="openApp('articles')">
+      <div class="app-card-icon" style="background:#4f8eff20;color:#4f8eff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0-2 2z"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      <div class="app-card-info"><div class="app-card-name">News & Articles</div><div class="app-card-desc">Live feeds: Tech, AI, Science, Economy, Politics.</div></div><span class="app-card-arrow">›</span>
+    </div>
+    <div class="app-card app-card-soon" onclick="showComingSoon('Account & Multi-Device Sync')">
+      <div class="app-card-icon" style="background:#26a69a20;color:#26a69a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div class="app-card-info"><div class="app-card-name">Account & Sync</div><div class="app-card-desc">Multi-device login & real-time sync.</div></div><span class="soon-badge">Soon</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TODOS ─── -->
+<section class="panel" id="panel-todos">
+  <header class="panel-header">
+    <div class="panel-title-group"><h1 class="panel-title">Todos & Habits</h1><p class="panel-sub">Tasks, goals, daily habits</p></div>
+    <div class="panel-actions">
+      <button class="btn-outline btn-sm" id="btn-todo-template" onclick="openTemplateModal()">Use Template</button>
+      <button class="btn-primary" id="btn-add-todo-list" onclick="openAddTodoListModal()">+ New List</button>
+    </div>
+  </header>
+  <div class="bm-tabs">
+    <button class="bm-tab active" data-tab="todo-lists">📋 Lists</button>
+    <button class="bm-tab" data-tab="todo-groups">📁 Groups</button>
+    <button class="bm-tab" data-tab="todo-habits">🔥 Habits</button>
+    <button class="bm-tab" data-tab="todo-goals">🎯 Goals</button>
+  </div>
+  <div class="bm-tab-content active" id="bm-tab-todo-lists">
+    <div class="todos-layout">
+      <div class="todo-lists-sidebar" id="todo-lists-sidebar"></div>
+      <div class="todo-list-editor" id="todo-list-editor"><div class="note-editor-placeholder"><span>← Select or create a list</span></div></div>
+    </div>
+    <div class="empty-state" id="todos-empty" style="display:none"><div class="empty-icon">✅</div><p>No lists yet.<br/>Click <strong>+ New List</strong> to get started.</p></div>
+  </div>
+  <div class="bm-tab-content" id="bm-tab-todo-groups">
+    <div style="padding:14px 20px;display:flex;justify-content:flex-end">
+      <button class="btn-primary btn-sm" onclick="openAddTodoGroupModal()">+ New Group</button>
+    </div>
+    <div class="groups-container" id="todo-groups-grid"></div>
+    <div class="empty-state" id="todo-groups-empty"><div class="empty-icon">📁</div><p>No groups yet.<br/>Create a group to organise your lists.</p></div>
+  </div>
+  <div class="bm-tab-content" id="bm-tab-todo-habits">
+    <div class="habits-grid" id="habits-grid"></div>
+    <div class="empty-state" id="habits-empty"><div class="empty-icon">🔥</div><p>No habits tracked yet.</p></div>
+    <button class="fab" onclick="openAddHabitModal()">+</button>
+  </div>
+  <div class="bm-tab-content" id="bm-tab-todo-goals">
+    <div class="goals-grid" id="goals-grid"></div>
+    <div class="empty-state" id="goals-empty"><div class="empty-icon">🎯</div><p>No goals set.</p></div>
+    <button class="fab" onclick="openAddGoalModal()">+</button>
+  </div>
+</section>
+
+<!-- ─── BOOKS ─── -->
+<section class="panel" id="panel-books">
+  <header class="panel-header">
+    <div class="panel-title-group"><h1 class="panel-title">Book Library</h1><p class="panel-sub">Your personal reading shelf</p></div>
+    <div class="panel-actions">
+      <div class="search-wrap"><svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="books-search" class="search-input" placeholder="Search books…"/></div>
+      <select id="books-filter" class="filter-select"><option value="all">All</option><option value="reading">Reading</option><option value="toread">To Read</option><option value="done">Finished</option><option value="paused">Paused</option></select>
+      <button class="btn-primary" id="btn-add-book" onclick="openAddBookModal()">+ Add Book</button>
+    </div>
+  </header>
+  <div class="books-grid" id="books-grid"></div>
+  <div class="empty-state" id="books-empty"><div class="empty-icon">📚</div><p>Your library is empty.<br/>Add a book to start reading.</p></div>
+</section>
+
+<!-- ─── BOOK READER ─── -->
+<section class="panel" id="panel-reader">
+  <!-- Reading progress bar -->
+  <div class="reader-progress-bar-wrap"><div class="reader-progress-bar-fill" id="reader-progress-bar"></div></div>
+
+  <header class="panel-header reader-header" style="padding:10px 16px;flex-wrap:wrap;gap:8px">
+    <div class="reader-title-group">
+      <button class="btn-outline btn-sm" onclick="closeReader()">← Library</button>
+      <button class="btn-outline btn-sm" id="reader-sidebar-toggle" onclick="toggleReaderSidebar()" title="Toggle Sidebar">☰</button>
+      <span class="reader-book-title" id="reader-book-title">Reading</span>
+    </div>
+    <div class="panel-actions" style="flex-wrap:wrap;gap:6px">
+      <!-- Tool group -->
+      <div class="reader-controls">
+        <button class="wb-tool" id="reader-tool-cursor" title="Select / Cursor" onclick="setReaderTool('cursor')">↖ Select</button>
+        <button class="wb-tool" id="reader-tool-highlight" title="Highlight" onclick="setReaderTool('highlight')">🖊 Highlight</button>
+        <div class="reader-hl-colors" id="reader-hl-colors">
+          <span class="hl-color active" data-color="#ffe06688" title="Yellow" onclick="setHlColor('#ffe06688')"></span>
+          <span class="hl-color" data-color="#6af0a488" title="Green" onclick="setHlColor('#6af0a488')"></span>
+          <span class="hl-color" data-color="#60b0ff88" title="Blue" onclick="setHlColor('#60b0ff88')"></span>
+          <span class="hl-color" data-color="#ff7eab88" title="Pink" onclick="setHlColor('#ff7eab88')"></span>
+          <span class="hl-color" data-color="#ff9a4088" title="Orange" onclick="setHlColor('#ff9a4088')"></span>
+        </div>
+        <button class="wb-tool" id="reader-tool-note" title="Sticky Note" onclick="setReaderTool('note')">📌 Note</button>
+        <button class="wb-tool" id="reader-tool-bookmark" title="Bookmark Page" onclick="bookmarkCurrentPage()">🔖 Bookmark</button>
+        <button class="wb-tool" title="Search in book" onclick="toggleReaderSearch()">🔍 Search</button>
+      </div>
+      <!-- View group -->
+      <div class="reader-view-controls">
+        <button class="btn-outline btn-sm" onclick="readerZoom(-0.2)" title="Zoom Out">−</button>
+        <span id="reader-zoom-label" style="font-family:var(--font-mono);font-size:11px;color:var(--text3);min-width:36px;text-align:center">100%</span>
+        <button class="btn-outline btn-sm" onclick="readerZoom(0.2)" title="Zoom In">+</button>
+        <button class="btn-outline btn-sm" onclick="readerFontSize(-1)" title="Smaller text">A−</button>
+        <button class="btn-outline btn-sm" onclick="readerFontSize(1)" title="Larger text">A+</button>
+        <select id="reader-font" class="filter-select" style="font-size:11px" onchange="readerChangeFont(this.value)">
+          <option value="Syne">Syne</option>
+          <option value="Georgia">Georgia</option>
+          <option value="'DM Serif Display'">DM Serif</option>
+          <option value="'Courier New'">Mono</option>
+        </select>
+        <select id="reader-theme" class="filter-select" style="font-size:11px" onchange="readerChangeTheme(this.value)">
+          <option value="dark">🌙 Dark</option>
+          <option value="light">☀️ Light</option>
+          <option value="sepia">📜 Sepia</option>
+          <option value="night">🔵 Night</option>
+        </select>
+        <button class="btn-outline btn-sm" onclick="toggleAutoScroll()" id="reader-autoscroll-btn" title="Auto Scroll">⏩ Auto</button>
+        <button class="btn-outline btn-sm" onclick="exportReaderNotes()" title="Export Notes">⬇ Export</button>
+        <button class="btn-outline btn-sm" onclick="toggleReaderFullscreen()" id="reader-fs-btn" title="Fullscreen">⛶</button>
+      </div>
+      <span class="reader-progress-label" id="reader-progress-label">Page 1</span>
+    </div>
+  </header>
+
+  <!-- Search bar (hidden by default) -->
+  <div class="reader-search-bar" id="reader-search-bar" style="display:none">
+    <div class="search-wrap" style="flex:1;max-width:400px">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="reader-search-input" class="search-input" placeholder="Search in book…" oninput="readerSearch(this.value)" onkeydown="readerSearchNav(event)"/>
+    </div>
+    <span id="reader-search-count" style="font-size:12px;color:var(--text3);white-space:nowrap">0 results</span>
+    <button class="btn-outline btn-sm" onclick="readerSearchPrev()">↑ Prev</button>
+    <button class="btn-outline btn-sm" onclick="readerSearchNext()">↓ Next</button>
+    <button class="btn-outline btn-sm" onclick="toggleReaderSearch()">✕</button>
+  </div>
+
+  <div class="reader-layout" id="reader-layout">
+    <!-- Sidebar -->
+    <div class="reader-sidebar" id="reader-sidebar">
+      <div class="bm-tabs" style="padding:0 10px;margin-bottom:4px">
+        <button class="bm-tab active" data-rtab="toc" onclick="switchReaderTab('toc')">📑</button>
+        <button class="bm-tab" data-rtab="bookmarks" onclick="switchReaderTab('bookmarks')">🔖</button>
+        <button class="bm-tab" data-rtab="annotations" onclick="switchReaderTab('annotations')">🖊</button>
+        <button class="bm-tab" data-rtab="notes" onclick="switchReaderTab('notes')">📌</button>
+        <button class="bm-tab" data-rtab="stats" onclick="switchReaderTab('stats')">📊</button>
+      </div>
+      <div id="reader-toc" class="reader-tab-content active"></div>
+      <div id="reader-bookmarks-list" class="reader-tab-content"></div>
+      <div id="reader-annotations-list" class="reader-tab-content"></div>
+      <div id="reader-notes-list" class="reader-tab-content"></div>
+      <div id="reader-stats-panel" class="reader-tab-content"></div>
+    </div>
+
+    <!-- Main reading area -->
+    <div class="reader-main" id="reader-main">
+      <div class="reader-content-wrap" id="reader-content-wrap">
+        <!-- PDF canvas or EPUB iframe rendered here -->
+      </div>
+      <!-- Floating sticky note input (hidden) -->
+      <div class="reader-sticky-input" id="reader-sticky-input" style="display:none">
+        <textarea id="reader-sticky-text" placeholder="Add note…" rows="3"></textarea>
+        <div style="display:flex;gap:6px;margin-top:6px">
+          <button class="btn-primary btn-sm" onclick="saveReaderStickyNote()">Save</button>
+          <button class="btn-outline btn-sm" onclick="cancelStickyNote()">Cancel</button>
+        </div>
+      </div>
+      <!-- Context menu for selected text -->
+      <div class="reader-context-menu" id="reader-context-menu" style="display:none">
+        <button onclick="contextHighlight()">🖊 Highlight</button>
+        <button onclick="contextNote()">📌 Add Note</button>
+        <button onclick="contextCopy()">📋 Copy</button>
+        <button onclick="contextLookup()">🔍 Define</button>
+      </div>
+      <!-- Dictionary popup -->
+      <div class="reader-dict-popup" id="reader-dict-popup" style="display:none">
+        <div class="reader-dict-header"><span id="reader-dict-word"></span><button onclick="closeDict()">✕</button></div>
+        <div id="reader-dict-body" class="reader-dict-body">Looking up…</div>
+      </div>
+      <div class="reader-nav">
+        <button class="reader-nav-btn" id="reader-prev" onclick="readerPrev()" title="Previous (←)">‹</button>
+        <div class="reader-page-input-wrap">
+          <input type="number" id="reader-page-input" class="reader-page-input" onchange="readerGoToPage(this.value)" min="1"/>
+          <span id="reader-total-pages">/ 1</span>
+        </div>
+        <button class="reader-nav-btn" id="reader-next" onclick="readerNext()" title="Next (→)">›</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Dictionary modal -->
+<div class="modal-overlay" id="reader-dict-modal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header"><h2 id="dict-modal-word" style="font-family:var(--font-d)">Word</h2><button class="modal-close" onclick="closeModal('reader-dict-modal')">✕</button></div>
+    <div id="dict-modal-body" style="padding:16px 20px;color:var(--text2);line-height:1.7;font-size:14px"></div>
+  </div>
+</div>
+
+<!-- ─── MUSIC ─── -->
+<section class="panel" id="panel-music">
+  <header class="panel-header">
+    <div class="panel-title-group"><h1 class="panel-title">Music Player</h1><p class="panel-sub">Your local library</p></div>
+    <div class="panel-actions" style="gap:8px;flex-wrap:wrap">
+      <label class="btn-outline btn-sm" style="cursor:pointer">+ Add Songs<input type="file" id="music-file-input" accept="audio/*" multiple style="display:none" onchange="addMusicFiles(event)"/></label>
+      <select id="music-speed" class="filter-select" onchange="setPlaybackSpeed(this.value)" title="Playback Speed">
+        <option value="0.5">0.5×</option>
+        <option value="0.75">0.75×</option>
+        <option value="1" selected>1×</option>
+        <option value="1.25">1.25×</option>
+        <option value="1.5">1.5×</option>
+        <option value="2">2×</option>
+      </select>
+      <button class="btn-outline btn-sm" id="btn-spectrogram" onclick="toggleSpectrogram()" title="Spectrogram view">📊</button>
+    </div>
+  </header>
+  <div class="music-layout">
+    <!-- Library -->
+    <div class="music-library" id="music-library">
+      <div class="music-library-header">
+        <div class="search-wrap" style="flex:1"><svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="music-search" class="search-input" style="width:100%" placeholder="Search songs…" oninput="filterMusic(this.value)"/></div>
+      </div>
+      <div id="music-list"></div>
+      <div class="empty-state" id="music-empty"><div class="empty-icon">🎵</div><p>No songs yet.<br/>Add audio files to start.</p></div>
+      <div class="stream-links">
+        <div class="stream-section-title">Stream via browser</div>
+        <a href="https://open.spotify.com" target="_blank" class="stream-link-btn spotify">
+          <svg viewBox="0 0 24 24" width="18" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>Spotify</a>
+        <a href="https://music.youtube.com" target="_blank" class="stream-link-btn ytmusic">
+          <svg viewBox="0 0 24 24" width="18" fill="#FF0000"><path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>YouTube Music</a>
+        <a href="https://soundcloud.com" target="_blank" class="stream-link-btn soundcloud">SC</a>
+      </div>
+    </div>
+
+    <!-- Player -->
+    <div class="music-player" id="music-player">
+      <div class="music-now-playing">
+        <div class="music-album-art" id="music-album-art">🎵</div>
+        <div class="music-track-info">
+          <div class="music-track-title" id="music-track-title">No track selected</div>
+          <div class="music-track-artist" id="music-track-artist">—</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px" id="music-track-meta"></div>
+        </div>
+      </div>
+
+      <!-- Wavesurfer waveform -->
+      <div id="waveform-container" style="margin:14px 0;border-radius:var(--r-sm);overflow:hidden;background:var(--bg3);padding:8px;min-height:60px">
+        <div id="waveform"></div>
+        <div id="spectrogram" style="display:none"></div>
+      </div>
+
+      <!-- Time -->
+      <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-bottom:10px">
+        <span id="music-current-time">0:00</span>
+        <span id="music-duration">0:00</span>
+      </div>
+
+      <!-- Controls -->
+      <div class="music-controls">
+        <button class="music-ctrl-btn" id="btn-shuffle" onclick="toggleShuffle()" title="Shuffle (S)">⇄</button>
+        <button class="music-ctrl-btn" onclick="musicPrev()" title="Previous (←)">⏮</button>
+        <button class="music-ctrl-btn music-play-btn" id="btn-play-pause" onclick="togglePlay()" title="Play/Pause (Space)">▶</button>
+        <button class="music-ctrl-btn" onclick="musicNext()" title="Next (→)">⏭</button>
+        <button class="music-ctrl-btn" id="btn-repeat" onclick="toggleRepeat()" title="Repeat (R)">↺</button>
+      </div>
+
+      <!-- Volume -->
+      <div class="music-volume">
+        <span>🔈</span>
+        <input type="range" id="music-volume" min="0" max="1" step="0.01" value="0.8" oninput="setVolume(this.value)" class="music-slider"/>
+        <span>🔊</span>
+      </div>
+
+      <!-- Keyboard hint -->
+      <div style="text-align:center;font-size:10px;color:var(--text3);margin-top:8px">
+        Space = play/pause &nbsp;·&nbsp; ←/→ = prev/next &nbsp;·&nbsp; S = shuffle &nbsp;·&nbsp; R = repeat
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FILE TOOLS ─── -->
+<section class="panel" id="panel-filetools">
+  <header class="panel-header">
+    <div class="panel-title-group"><h1 class="panel-title">Files &amp; Related Tools</h1><p class="panel-sub">PDF tools, conversions, image editing &amp; OCR</p></div>
+  </header>
+  <div class="bm-tabs">
+    <button class="bm-tab active" data-tab="ft-pdf">📕 PDF Tools</button>
+    <button class="bm-tab" data-tab="ft-convert">🔄 Convert</button>
+    <button class="bm-tab" data-tab="ft-image">🖼 Image Tools</button>
+    <button class="bm-tab" data-tab="ft-ocr">🔍 OCR</button>
+  </div>
+  <!-- PDF Tools -->
+  <div class="bm-tab-content active" id="bm-tab-ft-pdf">
+    <div class="filetool-grid">
+      <div class="filetool-card">
+        <div class="filetool-icon">📖</div>
+        <div class="filetool-name">PDF Reader</div>
+        <div class="filetool-desc">Open and read any PDF with zoom, navigation and text selection</div>
+        <label class="btn-primary" style="cursor:pointer;display:inline-block;margin-top:8px">Open PDF<input type="file" accept=".pdf" style="display:none" onchange="openPDFTool(event,'read')"/></label>
+      </div>
+      <div class="filetool-card">
+        <div class="filetool-icon">✍️</div>
+        <div class="filetool-name">Annotate & Highlight</div>
+        <div class="filetool-desc">Highlight text, add sticky notes, draw on PDFs</div>
+        <label class="btn-primary" style="cursor:pointer;display:inline-block;margin-top:8px">Open PDF<input type="file" accept=".pdf" style="display:none" onchange="openPDFTool(event,'annotate')"/></label>
+      </div>
+      <div class="filetool-card">
+        <div class="filetool-icon">🔗</div>
+        <div class="filetool-name">Merge PDFs</div>
+        <div class="filetool-desc">Combine multiple PDF files into one document</div>
+        <label class="btn-primary" style="cursor:pointer;display:inline-block;margin-top:8px">Select PDFs<input type="file" accept=".pdf" multiple style="display:none" onchange="mergePDFs(event)"/></label>
+      </div>
+      <div class="filetool-card">
+        <div class="filetool-icon">✂️</div>
+        <div class="filetool-name">Split PDF</div>
+        <div class="filetool-desc">Extract specific pages or split into individual files</div>
+        <label class="btn-primary" style="cursor:pointer;display:inline-block;margin-top:8px">Open PDF<input type="file" accept=".pdf" style="display:none" onchange="splitPDFTool(event)"/></label>
+      </div>
+      <div class="filetool-card">
+        <div class="filetool-icon">🗜️</div>
+        <div class="filetool-name">Compress PDF</div>
+        <div class="filetool-desc">Reduce PDF file size by lowering image resolution</div>
+        <label class="btn-primary" style="cursor:pointer;display:inline-block;margin-top:8px">Select PDF<input type="file" accept=".pdf" style="display:none" onchange="compressPDF(event)"/></label>
+      </div>
+      <div class="filetool-card">
+        <div class="filetool-icon">🔄</div>
+        <div class="filetool-name">Rotate Pages</div>
+        <div class="filetool-desc">Rotate individual or all pages in a PDF</div>
+        <label class="btn-primary" style="cursor:pointer;display:inline-block;margin-top:8px">Open PDF<input type="file" accept=".pdf" style="display:none" onchange="rotatePDFTool(event)"/></label>
+      </div>
+    </div>
+    <!-- PDF workspace -->
+    <div id="pdf-workspace" style="display:none"></div>
+  </div>
+  <!-- Convert -->
+  <div class="bm-tab-content" id="bm-tab-ft-convert">
+    <div class="filetool-grid">
+      <div class="filetool-card">
+        <div class="filetool-icon">📄→🖼</div>
+        <div class="filetool-name">PDF → Images</div>
+        <div class="filetool-desc">Convert each PDF page to a PNG image</div>
+        <label class="btn-primary" style="cursor:pointer;display:inline-block;margin-top:8px">Select PDF<input type="file" accept=".pdf" style="display:none" onchange="pdfToImages(event)"/></label>
+      </div>
+      <div class="filetool-card">
+        <div class="filetool-icon">📝→📄</div>
+        <div class="filetool-name">Text / MD → PDF</div>
+        <div class="filetool-desc">Convert .txt or .md files to a styled PDF</div>
+        <label class="btn-primary" style="cursor:pointer;display:inline-block;margin-top:8px">Select File<input type="file" accept=".txt,.md" style="display:none" onchange="textToPDF(event)"/></label>
+      </div>
+      <div class="filetool-card">
+        <div class="filetool-icon">🖼→📄</div>
+        <div class="filetool-name">Images → PDF</div>
+        <div class="filetool-desc">Combine JPG/PNG images into a single PDF</div>
+        <label class="btn-primary" style="cursor:pointer;display:inline-block;margin-top:8px">Select Images<input type="file" accept="image/*" multiple style="display:none" onchange="imagesToPDF(event)"/></label>
+      </div>
+      <div class="filetool-card">
+        <div class="filetool-icon">📑→📝</div>
+        <div class="filetool-name">PDF → Text</div>
+        <div class="filetool-desc">Extract all text content from a PDF as plain text</div>
+        <label class="btn-primary" style="cursor:pointer;display:inline-block;margin-top:8px">Select PDF<input type="file" accept=".pdf" style="display:none" onchange="pdfToText(event)"/></label>
+      </div>
+      <div class="filetool-card">
+        <div class="filetool-icon">📝→🌐</div>
+        <div class="filetool-name">MD → HTML</div>
+        <div class="filetool-desc">Convert Markdown files to styled HTML</div>
+        <label class="btn-primary" style="cursor:pointer;display:inline-block;margin-top:8px">Select .md<input type="file" accept=".md,.txt" style="display:none" onchange="mdToHTML(event)"/></label>
+      </div>
+      <div class="filetool-card">
+        <div class="filetool-icon">🌐→📝</div>
+        <div class="filetool-name">HTML → Text</div>
+        <div class="filetool-desc">Strip HTML tags and extract clean text</div>
+        <label class="btn-primary" style="cursor:pointer;display:inline-block;margin-top:8px">Select .html<input type="file" accept=".html,.htm" style="display:none" onchange="htmlToText(event)"/></label>
+      </div>
+    </div>
+    <div id="convert-output" class="convert-output" style="display:none"></div>
+  </div>
+  <!-- Image Tools -->
+  <div class="bm-tab-content" id="bm-tab-ft-image">
+    <div class="filetool-grid">
+      <div class="filetool-card">
+        <div class="filetool-icon">↔️</div>
+        <div class="filetool-name">Resize Image</div>
+        <div class="filetool-desc">Resize to specific dimensions or percentage</div>
+        <label class="btn-primary" style="cursor:pointer;display:inline-block;margin-top:8px">Select Image<input type="file" accept="image/*" style="display:none" onchange="openImageTool(event,'resize')"/></label>
+      </div>
+      <div class="filetool-card">
+        <div class="filetool-icon">🔄</div>
+        <div class="filetool-name">Rotate / Flip</div>
+        <div class="filetool-desc">Rotate 90°/180°/270° or flip horizontally/vertically</div>
+        <label class="btn-primary" style="cursor:pointer;display:inline-block;margin-top:8px">Select Image<input type="file" accept="image/*" style="display:none" onchange="openImageTool(event,'rotate')"/></label>
+      </div>
+      <div class="filetool-card">
+        <div class="filetool-icon">✂️</div>
+        <div class="filetool-name">Crop Image</div>
+        <div class="filetool-desc">Crop to a specific area of the image</div>
+        <label class="btn-primary" style="cursor:pointer;display:inline-block;margin-top:8px">Select Image<input type="file" accept="image/*" style="display:none" onchange="openImageTool(event,'crop')"/></label>
+      </div>
+      <div class="filetool-card">
+        <div class="filetool-icon">🎨</div>
+        <div class="filetool-name">Filters & Adjustments</div>
+        <div class="filetool-desc">Brightness, contrast, saturation, grayscale, sepia</div>
+        <label class="btn-primary" style="cursor:pointer;display:inline-block;margin-top:8px">Select Image<input type="file" accept="image/*" style="display:none" onchange="openImageTool(event,'filter')"/></label>
+      </div>
+      <div class="filetool-card">
+        <div class="filetool-icon">🗜️</div>
+        <div class="filetool-name">Compress Image</div>
+        <div class="filetool-desc">Reduce image file size with quality control</div>
+        <label class="btn-primary" style="cursor:pointer;display:inline-block;margin-top:8px">Select Image<input type="file" accept="image/*" style="display:none" onchange="openImageTool(event,'compress')"/></label>
+      </div>
+      <div class="filetool-card">
+        <div class="filetool-icon">🔄</div>
+        <div class="filetool-name">Convert Format</div>
+        <div class="filetool-desc">Convert between PNG, JPEG, WebP formats</div>
+        <label class="btn-primary" style="cursor:pointer;display:inline-block;margin-top:8px">Select Image<input type="file" accept="image/*" style="display:none" onchange="openImageTool(event,'convert')"/></label>
+      </div>
+    </div>
+    <div id="image-workspace" style="display:none"></div>
+  </div>
+  <!-- OCR -->
+  <div class="bm-tab-content" id="bm-tab-ft-ocr">
+    <div class="filetool-grid">
+      <div class="filetool-card" style="grid-column:1/-1;max-width:500px;margin:0 auto">
+        <div class="filetool-icon">🔍</div>
+        <div class="filetool-name">OCR — Extract Text from Image</div>
+        <div class="filetool-desc">Uses Tesseract.js to read text from JPG, PNG, scanned PDFs. Works entirely in your browser, no upload needed.</div>
+        <label class="btn-primary" style="cursor:pointer;display:inline-block;margin-top:8px">Select Image<input type="file" accept="image/*,.pdf" style="display:none" onchange="runOCR(event)"/></label>
+      </div>
+    </div>
+    <div id="ocr-output" style="display:none;padding:20px 28px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <h3 style="font-size:14px;font-weight:700">Extracted Text</h3>
+        <button class="btn-outline btn-sm" onclick="copyOCRText()">Copy</button>
+      </div>
+      <textarea id="ocr-text" style="width:100%;height:300px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;font-family:var(--font-mono);font-size:13px;color:var(--text);resize:vertical;outline:none"></textarea>
+    </div>
+    <div id="ocr-progress" style="display:none;padding:40px;text-align:center;color:var(--text3)">Running OCR… <span id="ocr-pct">0%</span></div>
+  </div>
+</section>
+
+<!-- ─── NOTIFICATIONS ─── -->
+<section class="panel" id="panel-notifications">
+  <header class="panel-header">
+    <div class="panel-title-group"><h1 class="panel-title">Notifications</h1><p class="panel-sub">Reminders, alerts, social quick-launch</p></div>
+    <div class="panel-actions">
+      <button class="btn-outline btn-sm" onclick="clearAllNotifs()">Clear All</button>
+      <button class="btn-primary" onclick="openAddReminderModal()">+ Add Reminder</button>
+    </div>
+  </header>
+  <div class="bm-tabs">
+    <button class="bm-tab active" data-tab="notif-all">🔔 All</button>
+    <button class="bm-tab" data-tab="notif-reminders">⏰ Reminders</button>
+    <button class="bm-tab" data-tab="notif-social">📲 Social</button>
+  </div>
+  <div class="bm-tab-content active" id="bm-tab-notif-all">
+    <div class="notif-list" id="notif-list-all"></div>
+    <div class="empty-state" id="notif-empty"><div class="empty-icon">🔔</div><p>No notifications.<br/>Add a reminder or check social links below.</p></div>
+  </div>
+  <div class="bm-tab-content" id="bm-tab-notif-reminders">
+    <div class="notif-list" id="notif-list-reminders"></div>
+    <div class="empty-state" id="notif-reminders-empty"><div class="empty-icon">⏰</div><p>No reminders set.</p></div>
+  </div>
+  <div class="bm-tab-content" id="bm-tab-notif-social">
+    <div class="social-grid">
+      <a class="social-app-card" href="https://web.whatsapp.com" target="_blank">
+        <div class="social-app-icon" style="background:#25D36620;color:#25D366">💬</div>
+        <div class="social-app-name">WhatsApp Web</div>
+        <div class="social-app-desc">Open WhatsApp in browser</div>
+        <span class="social-open-btn">Open ↗</span>
+      </a>
+      <a class="social-app-card" href="https://web.telegram.org" target="_blank">
+        <div class="social-app-icon" style="background:#2AABEE20;color:#2AABEE">✈️</div>
+        <div class="social-app-name">Telegram Web</div>
+        <div class="social-app-desc">Open Telegram in browser</div>
+        <span class="social-open-btn">Open ↗</span>
+      </a>
+      <a class="social-app-card" href="https://twitter.com/notifications" target="_blank">
+        <div class="social-app-icon" style="background:#1DA1F220;color:#1DA1F2">🐦</div>
+        <div class="social-app-name">X / Twitter</div>
+        <div class="social-app-desc">Check notifications on X</div>
+        <span class="social-open-btn">Open ↗</span>
+      </a>
+      <a class="social-app-card" href="https://instagram.com/direct/inbox" target="_blank">
+        <div class="social-app-icon" style="background:#E1306C20;color:#E1306C">📸</div>
+        <div class="social-app-name">Instagram DMs</div>
+        <div class="social-app-desc">Check Instagram messages</div>
+        <span class="social-open-btn">Open ↗</span>
+      </a>
+      <a class="social-app-card" href="https://discord.com/app" target="_blank">
+        <div class="social-app-icon" style="background:#5865F220;color:#5865F2">🎮</div>
+        <div class="social-app-name">Discord</div>
+        <div class="social-app-desc">Open Discord in browser</div>
+        <span class="social-open-btn">Open ↗</span>
+      </a>
+      <a class="social-app-card" href="https://linkedin.com/notifications" target="_blank">
+        <div class="social-app-icon" style="background:#0A66C220;color:#0A66C2">💼</div>
+        <div class="social-app-name">LinkedIn</div>
+        <div class="social-app-desc">Check LinkedIn notifications</div>
+        <span class="social-open-btn">Open ↗</span>
+      </a>
+      <a class="social-app-card" href="https://reddit.com/notifications" target="_blank">
+        <div class="social-app-icon" style="background:#FF450020;color:#FF4500">👽</div>
+        <div class="social-app-name">Reddit</div>
+        <div class="social-app-desc">Check Reddit notifications</div>
+        <span class="social-open-btn">Open ↗</span>
+      </a>
+      <a class="social-app-card" href="https://gmail.com" target="_blank">
+        <div class="social-app-icon" style="background:#EA433520;color:#EA4335">📧</div>
+        <div class="social-app-name">Gmail</div>
+        <div class="social-app-desc">Open Gmail inbox</div>
+        <span class="social-open-btn">Open ↗</span>
+      </a>
+    </div>
+    <p style="font-size:12px;color:var(--text3);padding:8px 28px 20px">These services block embedding for security. They open in a new tab.</p>
+  </div>
+</section>
+
+<!-- ─── PROMPT MAKER (panel) ─── -->
+<section class="panel" id="panel-promptmaker">
+  <header class="panel-header">
+    <div class="panel-title-group"><h1 class="panel-title">Prompt Maker</h1><p class="panel-sub">AI-optimised prompts via Claude</p></div>
+    <div class="panel-actions"><button class="btn-outline btn-sm" onclick="switchPanel('apps')">← Apps</button></div>
+  </header>
+  <div class="promptmaker-layout">
+    <div class="promptmaker-input-col">
+      <label style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.07em">Your Raw Idea or Instruction</label>
+      <textarea id="pm-raw-input" class="pm-textarea" placeholder="Describe what you want to do or create. Be as rough and natural as you like — Nexmark will refine it into an optimised prompt…"></textarea>
+      <div class="pm-config">
+        <div class="pm-config-row">
+          <label>Use Case</label>
+          <select id="pm-usecase" class="filter-select">
+            <option value="general">General</option>
+            <option value="coding">Coding / Dev</option>
+            <option value="writing">Writing / Content</option>
+            <option value="image">Image Generation</option>
+            <option value="analysis">Data / Analysis</option>
+            <option value="design">UI / Design</option>
+            <option value="research">Research</option>
+          </select>
+        </div>
+        <div class="pm-config-row">
+          <label>Output Format</label>
+          <select id="pm-format" class="filter-select">
+            <option value="default">Auto</option>
+            <option value="markdown">Markdown</option>
+            <option value="json">JSON</option>
+            <option value="list">Bullet List</option>
+            <option value="step">Step-by-step</option>
+            <option value="code">Code only</option>
+          </select>
+        </div>
+        <div class="pm-config-row">
+          <label>Optimization Level</label>
+          <div class="pm-slider-wrap">
+            <span class="pm-slider-label">Min</span>
+            <input type="range" id="pm-opt-level" min="1" max="5" value="3" class="music-slider pm-slider"/>
+            <span class="pm-slider-label">Max</span>
+          </div>
+          <span id="pm-opt-label" class="pm-opt-badge">Balanced</span>
+        </div>
+        <div class="pm-config-row">
+          <label>Token Budget</label>
+          <div class="pm-slider-wrap">
+            <span class="pm-slider-label">Lean</span>
+            <input type="range" id="pm-token-level" min="1" max="5" value="2" class="music-slider pm-slider"/>
+            <span class="pm-slider-label">Rich</span>
+          </div>
+          <span id="pm-token-label" class="pm-opt-badge">Concise</span>
+        </div>
+        <div class="pm-config-row">
+          <label>Include Examples</label>
+          <div class="toggle-group" style="width:fit-content">
+            <button class="toggle-btn" id="pm-examples-no" onclick="setPmToggle('examples',false)">No</button>
+            <button class="toggle-btn active" id="pm-examples-yes" onclick="setPmToggle('examples',true)">Yes</button>
+          </div>
+        </div>
+        <div class="pm-config-row">
+          <label>Add Role/Persona</label>
+          <div class="toggle-group" style="width:fit-content">
+            <button class="toggle-btn" id="pm-role-no" onclick="setPmToggle('role',false)">No</button>
+            <button class="toggle-btn active" id="pm-role-yes" onclick="setPmToggle('role',true)">Yes</button>
+          </div>
+        </div>
+      </div>
+      <button class="btn-primary" style="width:100%;padding:12px" onclick="generatePrompt()">✨ Generate Optimised Prompt</button>
+    </div>
+    <div class="promptmaker-output-col">
+      <div class="pm-output-header">
+        <span style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.07em">Generated Prompt</span>
+        <div style="display:flex;gap:6px">
+          <span id="pm-token-est" class="pm-token-badge">~0 tokens</span>
+          <button class="btn-outline btn-sm" onclick="copyPrompt()">Copy</button>
+          <button class="btn-outline btn-sm" onclick="savePrompt()">Save</button>
+        </div>
+      </div>
+      <div id="pm-output" class="pm-output"><div class="note-editor-placeholder" style="height:100%"><span>Your optimised prompt will appear here</span></div></div>
+      <div class="pm-saved-section">
+        <div style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.07em;padding:12px 0 8px">Saved Prompts</div>
+        <div id="pm-saved-list"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PRICE TRACKER ─── -->
+<section class="panel" id="panel-pricetracker">
+  <header class="panel-header">
+    <div class="panel-title-group"><h1 class="panel-title">Price Tracker</h1><p class="panel-sub">Track, compare, alerts & reviews</p></div>
+    <div class="panel-actions">
+      <button class="btn-outline btn-sm" onclick="switchPanel('apps')">← Apps</button>
+      <button class="btn-primary" onclick="openAddProductModal()">+ Add Product</button>
+    </div>
+  </header>
+  <div class="bm-tabs">
+    <button class="bm-tab active" data-tab="pt-products">📦 Products</button>
+    <button class="bm-tab" data-tab="pt-compare">⚖️ Compare</button>
+  </div>
+  <div class="bm-tab-content active" id="bm-tab-pt-products">
+    <div class="pt-grid" id="pt-grid"></div>
+    <div class="empty-state" id="pt-empty"><div class="empty-icon">🏷️</div><p>No products tracked.<br/>Add a product with its URL and price.</p></div>
+  </div>
+  <div class="bm-tab-content" id="bm-tab-pt-compare">
+    <div class="pt-compare-area" id="pt-compare-area"></div>
+    <div class="empty-state" id="pt-compare-empty"><div class="empty-icon">⚖️</div><p>Add 2+ products to compare them.</p></div>
+  </div>
+</section>
+
+<!-- ─── SETTINGS ─── -->
+<section class="panel" id="panel-settings">
+  <header class="panel-header">
+    <div class="panel-title-group"><h1 class="panel-title">Settings</h1><p class="panel-sub">Customize your workspace</p></div>
+  </header>
+  <div class="settings-grid">
+    <div class="settings-card">
+      <h3>Appearance</h3>
+      <label class="setting-row"><span>Theme</span>
+        <div class="toggle-group"><button class="toggle-btn active" id="theme-dark" onclick="setTheme('dark')">Dark</button><button class="toggle-btn" id="theme-light" onclick="setTheme('light')">Light</button></div>
+      </label>
+      <label class="setting-row"><span>Accent Color</span><div class="color-swatches" id="accent-swatches"></div></label>
+    </div>
+    <div class="settings-card">
+      <h3>Claude API Key</h3>
+      <p class="settings-desc">Required for Prompt Maker. Your key is stored only in localStorage and never sent anywhere except Anthropic's API.</p>
+      <input type="password" id="claude-api-key-input" placeholder="sk-ant-…" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);padding:8px 12px;font-family:var(--font-mono);font-size:12px;color:var(--text);width:100%;outline:none"/>
+      <button class="btn-primary btn-sm" style="margin-top:6px" onclick="saveClaudeKey()">Save Key</button>
+      <p class="settings-note" id="claude-key-status">Not set</p>
+    </div>
+    <div class="settings-card">
+      <h3>Data Management</h3>
+      <p class="settings-desc">All data stored in browser localStorage. Export regularly.</p>
+      <div class="settings-btns">
+        <button class="btn-outline" onclick="exportData()">Export JSON</button>
+        <button class="btn-outline" onclick="document.getElementById('import-file').click()">Import JSON</button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)"/>
+      </div>
+    </div>
+    <div class="settings-card">
+      <h3>Google Drive</h3>
+      <p class="settings-desc">Connect to browse, upload and delete Drive files directly.</p>
+      <button class="btn-primary" onclick="connectGDrive()">Connect Google Drive</button>
+      <p class="settings-note" id="gdrive-status2">Not connected</p>
+    </div>
+    <div class="settings-card">
+      <h3>Notifications</h3>
+      <p class="settings-desc">Enable browser notifications for reminders and due todos.</p>
+      <button class="btn-outline" onclick="requestNotifPermission()">Enable Browser Notifications</button>
+      <p class="settings-note" id="notif-permission-status">Permission: unknown</p>
+    </div>
+    <div class="settings-card">
+      <h3>🔄 Account & Multi-Device Sync</h3>
+      <p class="settings-desc">Sign in to sync all your data across devices in real time. Powered by Supabase (free).</p>
+      <!-- Not signed in -->
+      <div id="sb-auth-area">
+        <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);padding:14px;margin-bottom:12px;font-size:12px;color:var(--text2);line-height:1.6">
+          <strong style="color:var(--accent)">Setup (one-time, free):</strong><br/>
+          1. Go to <a href="https://supabase.com" target="_blank" style="color:var(--accent)">supabase.com</a> → New project (free)<br/>
+          2. Settings → API → copy <strong>Project URL</strong> and <strong>anon public key</strong><br/>
+          3. SQL Editor → run: <code style="background:var(--bg4);padding:2px 5px;border-radius:3px">CREATE TABLE nx_sync (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, user_id uuid REFERENCES auth.users NOT NULL, key text NOT NULL, value text, updated_at timestamptz DEFAULT now(), UNIQUE(user_id, key)); ALTER TABLE nx_sync ENABLE ROW LEVEL SECURITY; CREATE POLICY "Users own data" ON nx_sync USING (auth.uid()=user_id);</code>
+        </div>
+        <label class="settings-label">Supabase Project URL</label>
+        <input type="url" id="sb-url" class="filter-select" style="width:100%;margin-bottom:8px" placeholder="https://xxxx.supabase.co" value=""/>
+        <label class="settings-label">Anon Public Key</label>
+        <input type="text" id="sb-anon" class="filter-select" style="width:100%;margin-bottom:12px" placeholder="eyJ…" value=""/>
+        <label class="settings-label">Email</label>
+        <input type="email" id="sb-email" class="filter-select" style="width:100%;margin-bottom:8px" placeholder="you@email.com"/>
+        <label class="settings-label">Password</label>
+        <input type="password" id="sb-password" class="filter-select" style="width:100%;margin-bottom:12px" placeholder="••••••••"/>
+        <div style="display:flex;gap:8px">
+          <button class="btn-primary" id="sb-signin-btn" onclick="sbSignIn()" style="flex:1">Sign In</button>
+          <button class="btn-outline" onclick="sbSignUp()" style="flex:1">Create Account</button>
+        </div>
+      </div>
+      <!-- Signed in -->
+      <div id="sb-user-area" style="display:none">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;background:var(--bg3);border-radius:var(--r-sm);padding:12px">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:16px">👤</div>
+          <div>
+            <div style="font-weight:700;font-size:13px" id="sb-user-email"></div>
+            <div style="font-size:11px;color:var(--green)">✓ Syncing across devices</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-primary" onclick="sbPushAll()" style="flex:1">↑ Push all data now</button>
+          <button class="btn-outline" onclick="appSignOut()" style="flex:1">Sign Out</button>
+        </div>
+      </div>
+    </div>
+    <div class="settings-card danger-card">
+      <h3>Danger Zone</h3>
+      <p class="settings-desc">Permanently delete all data from this browser.</p>
+      <button class="btn-danger" onclick="clearAllData()">Clear All Data</button>
+    </div>
+  </div>
+</section>
+
+<!-- ─── WHITEBOARD ─── -->
+<section class="panel" id="panel-whiteboard">
+  <header class="panel-header" style="padding:10px 18px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="btn-outline btn-sm" onclick="switchPanel('apps')">← Apps</button>
+      <span id="wb-session-name" style="font-size:13px;color:var(--text2)">New session</span>
+    </div>
+    <div class="panel-actions">
+      <div class="wb-tools">
+        <button class="wb-tool active" data-tool="pen" title="Pen">✏️</button>
+        <button class="wb-tool" data-tool="highlighter" title="Highlighter">🖍</button>
+        <button class="wb-tool" data-tool="eraser" title="Eraser">🧹</button>
+        <button class="wb-tool" data-tool="text" title="Text">T</button>
+        <button class="wb-tool" data-tool="line" title="Line">╱</button>
+        <button class="wb-tool" data-tool="rect" title="Rectangle">▭</button>
+        <button class="wb-tool" data-tool="circle" title="Circle">○</button>
+      </div>
+      <input type="color" id="wb-color" value="#7c6af7" class="wb-color-input"/>
+      <select id="wb-size" class="filter-select" style="width:80px"><option value="2">Thin</option><option value="4" selected>Normal</option><option value="8">Thick</option><option value="16">Heavy</option></select>
+      <button class="btn-outline btn-sm" onclick="clearCanvas()">Clear</button>
+      <button class="btn-outline btn-sm" onclick="undoCanvas()">↩ Undo</button>
+      <button class="btn-primary btn-sm" onclick="saveWbSession()">Save</button>
+      <button class="btn-outline btn-sm" onclick="openWbSessions()">Sessions</button>
+      <button class="btn-outline btn-sm" onclick="exportCanvas()">Export PNG</button>
+    </div>
+  </header>
+  <div class="wb-container"><canvas id="wb-canvas"></canvas></div>
+</section>
+
+</main>
+
+<!-- ═══════ MODALS ═══════ -->
+<!-- Bookmark -->
+<div class="modal-overlay" id="bm-modal">
+  <div class="modal">
+    <div class="modal-header"><h2 id="bm-modal-title">Add Bookmark</h2><button class="modal-close" onclick="closeModal('bm-modal')">✕</button></div>
+    <div class="modal-body">
+      <label>URL <span class="req">*</span></label><input type="url" id="bm-url" placeholder="https://example.com"/>
+      <label>Title</label><input type="text" id="bm-title" placeholder="Auto-detected"/>
+      <label>Description</label><textarea id="bm-desc" rows="2" placeholder="Optional…"></textarea>
+      <label>Tags <span class="hint">(comma separated)</span></label><input type="text" id="bm-tags" placeholder="design, tools"/>
+      <label>Favicon URL <span class="hint">(optional)</span></label><input type="url" id="bm-favicon" placeholder="Auto-detected"/>
+      <label>Group</label><select id="bm-group"><option value="">— No Group —</option></select>
+    </div>
+    <div class="modal-footer"><button class="btn-outline" onclick="closeModal('bm-modal')">Cancel</button><button class="btn-primary" onclick="saveBookmark()">Save</button></div>
+  </div>
+</div>
+<!-- Cloud File -->
+<div class="modal-overlay" id="cloud-modal">
+  <div class="modal">
+    <div class="modal-header"><h2>Add Cloud File Link</h2><button class="modal-close" onclick="closeModal('cloud-modal')">✕</button></div>
+    <div class="modal-body">
+      <label>Cloud Service</label><select id="cloud-service"><option value="gdrive">Google Drive</option><option value="mega">MEGA</option><option value="dropbox">Dropbox</option><option value="onedrive">OneDrive</option><option value="other">Other</option></select>
+      <label>URL <span class="req">*</span></label><input type="url" id="cloud-url" placeholder="Paste share link"/>
+      <label>Name <span class="req">*</span></label><input type="text" id="cloud-name" placeholder="Project Assets…"/>
+      <label>File Type</label><select id="cloud-type"><option value="folder">📁 Folder</option><option value="doc">📄 Document</option><option value="sheet">📊 Spreadsheet</option><option value="slide">📑 Presentation</option><option value="image">🖼 Image</option><option value="pdf">📕 PDF</option><option value="other">📎 Other</option></select>
+      <label>Description</label><textarea id="cloud-desc" rows="2" placeholder="Optional…"></textarea>
+    </div>
+    <div class="modal-footer"><button class="btn-outline" onclick="closeModal('cloud-modal')">Cancel</button><button class="btn-primary" onclick="saveCloudFile()">Save</button></div>
+  </div>
+</div>
+<!-- Group -->
+<div class="modal-overlay" id="group-modal">
+  <div class="modal">
+    <div class="modal-header"><h2 id="group-modal-title">New Group</h2><button class="modal-close" onclick="closeModal('group-modal')">✕</button></div>
+    <div class="modal-body">
+      <label>Name <span class="req">*</span></label><input type="text" id="group-name" placeholder="Design Resources…"/>
+      <label>Icon</label><input type="text" id="group-icon" placeholder="📁" maxlength="4"/>
+      <label>Color</label><div class="group-color-picker" id="group-color-picker"></div>
+      <label>Description</label><textarea id="group-desc" rows="2" placeholder="What's this group for?"></textarea>
+    </div>
+    <div class="modal-footer"><button class="btn-outline" onclick="closeModal('group-modal')">Cancel</button><button class="btn-primary" onclick="saveGroup()">Save Group</button></div>
+  </div>
+</div>
+<!-- Import Links -->
+<div class="modal-overlay" id="import-links-modal">
+  <div class="modal" style="width:540px">
+    <div class="modal-header"><h2>Import Links as Group</h2><button class="modal-close" onclick="closeModal('import-links-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="import-preview" id="import-preview"></div>
+      <label>Group Name <span class="req">*</span></label><input type="text" id="import-group-name" placeholder="My Imported Links"/>
+      <label>Icon</label><input type="text" id="import-group-icon" placeholder="🔗" maxlength="4"/>
+      <label>Color</label><div class="group-color-picker" id="import-group-color-picker"></div>
+      <label>Description</label><textarea id="import-group-desc" rows="2" placeholder="Optional…"></textarea>
+    </div>
+    <div class="modal-footer"><button class="btn-outline" onclick="closeModal('import-links-modal')">Cancel</button><button class="btn-primary" onclick="confirmImportLinks()">Import as Group</button></div>
+  </div>
+</div>
+<!-- Todo List -->
+<div class="modal-overlay" id="todo-list-modal">
+  <div class="modal">
+    <div class="modal-header"><h2 id="todo-list-modal-title">New List</h2><button class="modal-close" onclick="closeModal('todo-list-modal')">✕</button></div>
+    <div class="modal-body">
+      <label>List Name <span class="req">*</span></label><input type="text" id="todo-list-name" placeholder="Work tasks…"/>
+      <label>Icon</label><input type="text" id="todo-list-icon" placeholder="📋" maxlength="4"/>
+      <label>Color</label><div class="group-color-picker" id="todo-list-color-picker"></div>
+    </div>
+    <div class="modal-footer"><button class="btn-outline" onclick="closeModal('todo-list-modal')">Cancel</button><button class="btn-primary" onclick="saveTodoList()">Create</button></div>
+  </div>
+</div>
+<!-- Todo Template -->
+<div class="modal-overlay" id="todo-template-modal">
+  <div class="modal" style="width:600px;max-width:95vw">
+    <div class="modal-header"><h2>Choose Template</h2><button class="modal-close" onclick="closeModal('todo-template-modal')">✕</button></div>
+    <div class="modal-body"><div class="template-grid" id="template-grid"></div></div>
+    <div class="modal-footer" style="justify-content:space-between">
+      <button class="btn-outline btn-sm" onclick="resetTemplates()">↺ Reset to defaults</button>
+      <button class="btn-primary btn-sm" onclick="addNewTemplate()">+ New Template</button>
+    </div>
+  </div>
+</div>
+<!-- Habit -->
+<div class="modal-overlay" id="habit-modal">
+  <div class="modal">
+    <div class="modal-header"><h2 id="habit-modal-title">New Habit</h2><button class="modal-close" onclick="closeModal('habit-modal')">✕</button></div>
+    <div class="modal-body">
+      <label>Name <span class="req">*</span></label><input type="text" id="habit-name" placeholder="Exercise, Read…"/>
+      <label>Icon</label><input type="text" id="habit-icon" placeholder="🔥" maxlength="4"/>
+      <label>Frequency</label><select id="habit-freq"><option value="daily">Daily</option><option value="weekdays">Weekdays</option><option value="weekly">Weekly</option></select>
+      <label>Color</label><div class="group-color-picker" id="habit-color-picker"></div>
+    </div>
+    <div class="modal-footer"><button class="btn-outline" onclick="closeModal('habit-modal')">Cancel</button><button class="btn-primary" onclick="saveHabit()">Save</button></div>
+  </div>
+</div>
+<!-- Goal -->
+<div class="modal-overlay" id="goal-modal">
+  <div class="modal">
+    <div class="modal-header"><h2 id="goal-modal-title">New Goal</h2><button class="modal-close" onclick="closeModal('goal-modal')">✕</button></div>
+    <div class="modal-body">
+      <label>Goal <span class="req">*</span></label><input type="text" id="goal-name" placeholder="Run 5K…"/>
+      <label>Target</label><div style="display:flex;gap:8px"><input type="number" id="goal-target" placeholder="100" style="flex:1"/><input type="text" id="goal-unit" placeholder="pages, km…" style="flex:1"/></div>
+      <label>Deadline</label><input type="date" id="goal-deadline"/>
+      <label>Color</label><div class="group-color-picker" id="goal-color-picker"></div>
+    </div>
+    <div class="modal-footer"><button class="btn-outline" onclick="closeModal('goal-modal')">Cancel</button><button class="btn-primary" onclick="saveGoal()">Save</button></div>
+  </div>
+</div>
+<!-- Book -->
+<div class="modal-overlay" id="book-modal">
+  <div class="modal">
+    <div class="modal-header"><h2 id="book-modal-title">Add Book</h2><button class="modal-close" onclick="closeModal('book-modal')">✕</button></div>
+    <div class="modal-body">
+      <label>Title <span class="req">*</span></label><input type="text" id="book-title" placeholder="Book title"/>
+      <label>Author</label><input type="text" id="book-author" placeholder="Author"/>
+      <label>Total Pages</label><input type="number" id="book-pages" placeholder="300"/>
+      <label>Status</label><select id="book-status"><option value="toread">📌 To Read</option><option value="reading">📖 Reading</option><option value="done">✅ Finished</option><option value="paused">⏸ Paused</option></select>
+      <label>Current Page</label><input type="number" id="book-current" placeholder="0"/>
+      <label>Upload File <span class="hint">(PDF or EPUB)</span></label>
+      <label class="btn-outline btn-sm" style="cursor:pointer;width:fit-content">
+        Choose File
+        <input type="file" id="book-file-input" accept=".pdf,.epub" style="display:none" onchange="handleBookFileUpload(event)"/>
+      </label>
+      <span id="book-file-label" style="font-size:12px;color:var(--text3)">No file chosen</span>
+      <label>Cover URL <span class="hint">(optional)</span></label><input type="url" id="book-cover" placeholder="https://…"/>
+      <label>Notes</label><textarea id="book-notes" rows="2" placeholder="Your thoughts…"></textarea>
+      <label>Genre / Tags</label><input type="text" id="book-tags" placeholder="fiction, sci-fi"/>
+    </div>
+    <div class="modal-footer"><button class="btn-outline" onclick="closeModal('book-modal')">Cancel</button><button class="btn-primary" onclick="saveBook()">Save Book</button></div>
+  </div>
+</div>
+<!-- Whiteboard Sessions -->
+<div class="modal-overlay" id="wb-sessions-modal">
+  <div class="modal" style="width:520px">
+    <div class="modal-header"><h2>Saved Sessions</h2><button class="modal-close" onclick="closeModal('wb-sessions-modal')">✕</button></div>
+    <div class="modal-body" id="wb-sessions-list" style="max-height:400px;overflow-y:auto"></div>
+    <div class="modal-footer"><button class="btn-outline" onclick="closeModal('wb-sessions-modal')">Close</button><button class="btn-primary" onclick="newWbSession()">+ New Session</button></div>
+  </div>
+</div>
+<!-- Reminder Modal -->
+<div class="modal-overlay" id="reminder-modal">
+  <div class="modal">
+    <div class="modal-header"><h2>Add Reminder</h2><button class="modal-close" onclick="closeModal('reminder-modal')">✕</button></div>
+    <div class="modal-body">
+      <label>Title <span class="req">*</span></label><input type="text" id="reminder-title" placeholder="Reminder text…"/>
+      <label>Date & Time <span class="req">*</span></label><input type="datetime-local" id="reminder-datetime"/>
+      <label>Type</label><select id="reminder-type"><option value="reminder">⏰ Reminder</option><option value="todo">✅ Todo Due</option><option value="note">📝 Note Review</option><option value="habit">🔥 Habit Check</option></select>
+      <label>Notes</label><textarea id="reminder-notes" rows="2" placeholder="Optional details…"></textarea>
+    </div>
+    <div class="modal-footer"><button class="btn-outline" onclick="closeModal('reminder-modal')">Cancel</button><button class="btn-primary" onclick="saveReminder()">Save Reminder</button></div>
+  </div>
+</div>
+<!-- Product Modal -->
+<div class="modal-overlay" id="product-modal">
+  <div class="modal">
+    <div class="modal-header"><h2>Add Product</h2><button class="modal-close" onclick="closeModal('product-modal')">✕</button></div>
+    <div class="modal-body">
+      <label>Product Name <span class="req">*</span></label><input type="text" id="pt-name" placeholder="iPhone 16 Pro, Nike Air Max…"/>
+      <label>Product URL</label><input type="url" id="pt-url" placeholder="https://amazon.com/…"/>
+      <label>Current Price <span class="req">*</span></label>
+      <div style="display:flex;gap:8px"><select id="pt-currency" class="filter-select" style="width:80px"><option>₹</option><option>$</option><option>€</option><option>£</option></select><input type="number" id="pt-price" placeholder="1499" style="flex:1"/></div>
+      <label>Target Price Alert</label><input type="number" id="pt-target" placeholder="Alert me when price drops to…"/>
+      <label>Category</label><input type="text" id="pt-category" placeholder="Electronics, Clothing…"/>
+      <label>Store / Platform</label><input type="text" id="pt-store" placeholder="Amazon, Flipkart, IKEA…"/>
+      <label>Notes</label><textarea id="pt-notes" rows="2" placeholder="Your notes…"></textarea>
+    </div>
+    <div class="modal-footer"><button class="btn-outline" onclick="closeModal('product-modal')">Cancel</button><button class="btn-primary" onclick="saveProduct()">Save Product</button></div>
+  </div>
+</div>
+<!-- PDF Workspace Modal -->
+<div class="modal-overlay" id="pdf-modal">
+  <div class="modal" style="width:94vw;max-width:1100px;max-height:94vh">
+    <div class="modal-header">
+      <h2 id="pdf-modal-title">PDF Viewer</h2>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span id="pdf-page-label" style="font-size:12px;color:var(--text3)">Page 1 / 1</span>
+        <button class="btn-outline btn-sm" onclick="pdfPrev()">‹ Prev</button>
+        <button class="btn-outline btn-sm" onclick="pdfNext()">Next ›</button>
+        <select id="pdf-zoom" class="filter-select" style="font-size:12px" onchange="setPDFZoom(this.value)">
+          <option value="0.75">75%</option><option value="1" selected>100%</option><option value="1.25">125%</option><option value="1.5">150%</option><option value="2">200%</option>
+        </select>
+        <button class="btn-outline btn-sm" onclick="rotatePDFPage()">↻ Rotate</button>
+        <button class="btn-outline btn-sm" onclick="downloadAnnotatedPDF()">↓ Download</button>
+        <button class="modal-close" onclick="closeModal('pdf-modal')">✕</button>
+      </div>
+    </div>
+    <div class="pdf-viewer-body">
+      <div class="pdf-sidebar" id="pdf-sidebar">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;padding:12px 14px 6px">Annotations</div>
+        <div id="pdf-annotations-list"></div>
+      </div>
+      <div class="pdf-canvas-wrap" id="pdf-canvas-wrap">
+        <canvas id="pdf-canvas"></canvas>
+        <canvas id="pdf-annot-canvas" style="position:absolute;top:0;left:0;cursor:crosshair"></canvas>
+      </div>
+    </div>
+    <div class="pdf-tools-bar">
+      <button class="wb-tool" id="pt-select" onclick="setPDFTool('select')" title="Select">☞ Select</button>
+      <button class="wb-tool" id="pt-highlight" onclick="setPDFTool('highlight')" title="Highlight">🖊 Highlight</button>
+      <button class="wb-tool" id="pt-draw" onclick="setPDFTool('draw')" title="Draw">✏️ Draw</button>
+      <button class="wb-tool" id="pt-sticky" onclick="setPDFTool('sticky')" title="Sticky Note">📌 Note</button>
+      <button class="wb-tool" id="pt-erase" onclick="setPDFTool('erase')" title="Erase">🧹 Erase</button>
+      <input type="color" id="pdf-color" value="#ffeb3b" class="wb-color-input" title="Color"/>
+    </div>
+  </div>
+</div>
+<!-- Image Tool Modal -->
+<div class="modal-overlay" id="image-tool-modal">
+  <div class="modal" style="width:90vw;max-width:900px;max-height:90vh">
+    <div class="modal-header"><h2 id="img-tool-title">Image Tool</h2><button class="modal-close" onclick="closeModal('image-tool-modal')">✕</button></div>
+    <div class="modal-body" id="img-tool-body" style="max-height:70vh;overflow-y:auto"></div>
+    <div class="modal-footer"><button class="btn-outline" onclick="closeModal('image-tool-modal')">Close</button><button class="btn-primary" onclick="downloadImageResult()">↓ Download Result</button></div>
+  </div>
+</div>
+<!-- Split PDF Modal -->
+<div class="modal-overlay" id="split-pdf-modal">
+  <div class="modal">
+    <div class="modal-header"><h2>Split PDF</h2><button class="modal-close" onclick="closeModal('split-pdf-modal')">✕</button></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text2)" id="split-pdf-info"></p>
+      <label>Pages to Extract <span class="hint">(e.g. 1-3, 5, 7-9)</span></label>
+      <input type="text" id="split-pdf-pages" placeholder="1-3, 5, 8-10"/>
+    </div>
+    <div class="modal-footer"><button class="btn-outline" onclick="closeModal('split-pdf-modal')">Cancel</button><button class="btn-primary" onclick="confirmSplitPDF()">Extract & Download</button></div>
+  </div>
+</div>
+<!-- Coming Soon -->
+<div class="modal-overlay" id="coming-soon-modal">
+  <div class="modal" style="max-width:380px;text-align:center">
+    <div class="modal-header" style="justify-content:center;border:none"><h2 id="coming-soon-title">Coming Soon</h2></div>
+    <div class="modal-body" style="align-items:center"><div style="font-size:56px;margin:8px 0">🚧</div><p id="coming-soon-desc" style="color:var(--text2);line-height:1.6"></p></div>
+    <div class="modal-footer" style="justify-content:center"><button class="btn-primary" onclick="closeModal('coming-soon-modal')">Got it</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<!-- ═══ External libraries — loaded last so they never block buttons ═══ -->
+<!-- PDF.js for PDF reading and file tools -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" defer></script>
+<!-- ─── CALENDAR ─── -->
+<section class="panel" id="panel-calendar">
+  <header class="panel-header">
+    <div class="panel-title-group"><h1 class="panel-title">Calendar</h1><p class="panel-sub">Events, holidays & planning</p></div>
+    <div class="panel-actions" style="gap:8px;flex-wrap:wrap">
+      <div class="layout-strip">
+        <span class="layout-opt active" id="cal-view-month" onclick="setCalView('month')">Month</span>
+        <span class="layout-opt" id="cal-view-week" onclick="setCalView('week')">Week</span>
+        <span class="layout-opt" id="cal-view-day" onclick="setCalView('day')">Day</span>
+        <span class="layout-opt" id="cal-view-agenda" onclick="setCalView('agenda')">Agenda</span>
+      </div>
+      <select class="filter-select" id="cal-region-select" onchange="setCalRegion(this.value)">
+        <option value="IN">🇮🇳 India</option><option value="US">🇺🇸 United States</option>
+        <option value="GB">🇬🇧 United Kingdom</option><option value="AU">🇦🇺 Australia</option>
+        <option value="CA">🇨🇦 Canada</option><option value="DE">🇩🇪 Germany</option>
+        <option value="FR">🇫🇷 France</option><option value="JP">🇯🇵 Japan</option>
+        <option value="SG">🇸🇬 Singapore</option><option value="AE">🇦🇪 UAE</option>
+        <option value="NZ">🇳🇿 New Zealand</option><option value="ZA">🇿🇦 South Africa</option>
+        <option value="BR">🇧🇷 Brazil</option><option value="MX">🇲🇽 Mexico</option>
+        <option value="MY">🇲🇾 Malaysia</option><option value="LK">🇱🇰 Sri Lanka</option>
+      </select>
+      <button class="btn-outline btn-sm" onclick="calNav(-1)">‹</button>
+      <span id="cal-title" style="font-weight:700;font-size:14px;color:var(--text);min-width:140px;text-align:center">Calendar</span>
+      <button class="btn-outline btn-sm" onclick="calNav(1)">›</button>
+      <button class="btn-outline btn-sm" onclick="calToday()">Today</button>
+      <button class="btn-primary btn-sm" onclick="openAddEventModal()">+ Event</button>
+    </div>
+  </header>
+  <div id="cal-body" style="flex:1;overflow-y:auto;padding:12px"></div>
+</section>
+
+<!-- Todo Group modal -->
+<div class="modal-overlay" id="todo-group-modal">
+  <div class="modal"><div class="modal-header"><h2 id="todo-group-modal-title">New Group</h2><button class="modal-close" onclick="closeModal('todo-group-modal')">✕</button></div>
+    <div class="modal-body"><label>Group Name <span class="req">*</span></label><input type="text" id="todo-group-name" placeholder="e.g. Work, Personal…"/></div>
+    <div class="modal-footer"><button class="btn-outline" onclick="closeModal('todo-group-modal')">Cancel</button><button class="btn-primary" onclick="saveTodoGroup()">Save</button></div>
+  </div>
+</div>
+
+<!-- Assign Lists to Group modal -->
+<div class="modal-overlay" id="assign-lists-modal">
+  <div class="modal"><div class="modal-header"><h2>Assign Lists — <span id="assign-lists-group-name"></span></h2><button class="modal-close" onclick="closeModal('assign-lists-modal')">✕</button></div>
+    <div class="modal-body" id="assign-lists-container" style="max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:8px"></div>
+    <div class="modal-footer"><button class="btn-primary" onclick="closeModal('assign-lists-modal')">Done</button></div>
+  </div>
+</div>
+
+<!-- Template Edit modal -->
+<div class="modal-overlay" id="template-edit-modal">
+  <div class="modal" style="max-width:520px"><div class="modal-header"><h2>Edit Template</h2><button class="modal-close" onclick="closeModal('template-edit-modal')">✕</button></div>
+    <div class="modal-body">
+      <label>Name</label><input type="text" id="tpl-edit-name" placeholder="Template name"/>
+      <label>Icon</label><input type="text" id="tpl-edit-icon" placeholder="🌅" maxlength="4" style="width:80px"/>
+      <label>Description</label><input type="text" id="tpl-edit-desc" placeholder="Short description"/>
+      <label style="margin-top:10px">Tasks <span style="color:var(--text3);font-weight:400">(one per line)</span></label>
+      <textarea id="tpl-edit-items" rows="8" placeholder="Task 1&#10;Task 2&#10;Task 3…" style="width:100%;resize:vertical;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);padding:10px;color:var(--text);font-family:var(--font-ui,sans-serif);font-size:13px;outline:none;margin-top:6px"></textarea>
+    </div>
+    <div class="modal-footer"><button class="btn-outline" onclick="closeModal('template-edit-modal')">Cancel</button><button class="btn-primary" onclick="saveEditTemplate()">Save Template</button></div>
+  </div>
+</div>
+
+<!-- Calendar Event modal -->
+<div class="modal-overlay" id="cal-event-modal">
+  <div class="modal"><div class="modal-header"><h2 id="cal-event-modal-title">New Event</h2><button class="modal-close" onclick="closeModal('cal-event-modal')">✕</button></div>
+    <div class="modal-body">
+      <label>Title <span class="req">*</span></label><input type="text" id="cal-event-title" placeholder="Event title…"/>
+      <label>Date <span class="req">*</span></label><input type="date" id="cal-event-date"/>
+      <label>Notes</label><textarea id="cal-event-notes" rows="3" placeholder="Optional notes…" style="width:100%;resize:vertical;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);padding:10px;color:var(--text);font-family:var(--font-ui,sans-serif);font-size:13px;outline:none;margin-top:6px"></textarea>
+      <label>Color</label>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap">
+        <input type="color" id="cal-event-color" value="#7c6af7" style="width:44px;height:30px;border:none;border-radius:6px;cursor:pointer;padding:2px"/>
+        <div style="display:flex;gap:6px">
+          <span onclick="document.getElementById('cal-event-color').value='#7c6af7'" style="width:22px;height:22px;border-radius:50%;background:#7c6af7;cursor:pointer;display:inline-block"></span>
+          <span onclick="document.getElementById('cal-event-color').value='#4f8eff'" style="width:22px;height:22px;border-radius:50%;background:#4f8eff;cursor:pointer;display:inline-block"></span>
+          <span onclick="document.getElementById('cal-event-color').value='#22d3a0'" style="width:22px;height:22px;border-radius:50%;background:#22d3a0;cursor:pointer;display:inline-block"></span>
+          <span onclick="document.getElementById('cal-event-color').value='#f0b429'" style="width:22px;height:22px;border-radius:50%;background:#f0b429;cursor:pointer;display:inline-block"></span>
+          <span onclick="document.getElementById('cal-event-color').value='#ff7043'" style="width:22px;height:22px;border-radius:50%;background:#ff7043;cursor:pointer;display:inline-block"></span>
+          <span onclick="document.getElementById('cal-event-color').value='#f06292'" style="width:22px;height:22px;border-radius:50%;background:#f06292;cursor:pointer;display:inline-block"></span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-outline" onclick="closeModal('cal-event-modal')">Cancel</button><button class="btn-primary" onclick="saveCalEvent()">Save Event</button></div>
+  </div>
+</div>
+
+<!-- ─── ARTICLES / NEWS ─── -->
+<section class="panel" id="panel-articles">
+  <header class="panel-header">
+    <div class="panel-title-group"><h1 class="panel-title">News & Articles</h1><p class="panel-sub">Live feeds from top sources</p></div>
+    <div class="panel-actions" style="gap:8px;flex-wrap:wrap">
+      <div class="search-wrap"><svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" class="search-input" placeholder="Search articles…" oninput="newsSearch(this.value)"/></div>
+      <button class="btn-outline btn-sm" onclick="fetchNews(NEWS.activeCategory)">↻ Refresh</button>
+    </div>
+  </header>
+  <!-- Category tabs -->
+  <div class="bm-tabs" style="gap:4px;flex-wrap:wrap">
+    <button class="news-cat-btn active" data-cat="tech" onclick="fetchNews('tech')">💻 Tech</button>
+    <button class="news-cat-btn" data-cat="ai" onclick="fetchNews('ai')">🤖 AI</button>
+    <button class="news-cat-btn" data-cat="science" onclick="fetchNews('science')">🔬 Science</button>
+    <button class="news-cat-btn" data-cat="economy" onclick="fetchNews('economy')">📈 Economy</button>
+    <button class="news-cat-btn" data-cat="politics" onclick="fetchNews('politics')">🏛 Politics</button>
+    <button class="news-cat-btn" data-cat="world" onclick="fetchNews('world')">🌍 World</button>
+    <button class="news-cat-btn" data-news-tab="saved" onclick="switchNewsTab('saved')" style="margin-left:auto">★ Saved</button>
+  </div>
+  <div class="news-grid" id="news-grid"></div>
+  <div class="empty-state" id="news-empty" style="display:none"><div class="empty-icon">📰</div><p>No articles loaded.</p></div>
+</section>
+
+<!-- ── Review Sentiment Modal ── -->
+<div class="modal-overlay" id="review-modal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header"><h2>📊 Review Analysis — <span id="review-product-name"></span></h2><button class="modal-close" onclick="closeModal('review-modal')">✕</button></div>
+    <div class="modal-body">
+      <label>Paste reviews below <span style="color:var(--text3);font-weight:400">(copy from Amazon, Flipkart, etc.)</span></label>
+      <textarea id="review-input" rows="7" placeholder="Paste product reviews here…&#10;&#10;The more reviews you paste, the more accurate the analysis." style="width:100%;resize:vertical;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);padding:10px;color:var(--text);font-size:13px;outline:none;margin-top:6px;line-height:1.5"></textarea>
+      <div id="review-result" style="margin-top:14px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('review-modal')">Close</button>
+      <button class="btn-primary" onclick="analyzeReviews()">🤖 Analyse with AI</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Account & Sync (Supabase) section added to Settings ── -->
+
+<!-- ─── PRESENTATION MAKER ─── -->
+<section class="panel" id="panel-presentations">
+  <header class="panel-header">
+    <div class="panel-title-group"><h1 class="panel-title">Presentation Maker</h1><p class="panel-sub">Build slides, generate with AI, export .pptx</p></div>
+    <div class="panel-actions" style="gap:8px;flex-wrap:wrap">
+      <button class="btn-outline btn-sm" onclick="switchPanel('apps')">← Apps</button>
+      <button class="btn-outline btn-sm" onclick="openAISlideModal()">🤖 AI Generate</button>
+      <button class="btn-primary btn-sm" onclick="addNewSlide()">+ Add Slide</button>
+      <button class="btn-primary btn-sm" onclick="exportPptx()" style="background:var(--green);border-color:var(--green)">⬇ Export .pptx</button>
+    </div>
+  </header>
+  <div class="bm-tabs">
+    <button class="bm-tab active" data-tab="ppt-editor">🎨 Editor</button>
+    <button class="bm-tab" data-tab="ppt-templates">📐 Templates</button>
+  </div>
+  <!-- Editor -->
+  <div class="bm-tab-content active" id="bm-tab-ppt-editor">
+    <div class="ppt-layout">
+      <!-- Slide list sidebar -->
+      <div class="ppt-sidebar" id="ppt-slide-list"></div>
+      <!-- Main editing area -->
+      <div class="ppt-main">
+        <div id="ppt-slide-preview" class="ppt-preview-area">
+          <div class="ppt-empty-state">
+            <div style="font-size:48px">🎞️</div>
+            <p>No slides yet.<br/>Choose a template or click <strong>+ Add Slide</strong>.</p>
+          </div>
+        </div>
+        <!-- Edit form -->
+        <div class="ppt-edit-form" id="ppt-edit-form" style="display:none">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div>
+              <label class="ppt-label">Slide Title</label>
+              <input type="text" id="ppt-slide-title" class="ppt-input" placeholder="Slide title…" oninput="updateSlidePreview()"/>
+            </div>
+            <div>
+              <label class="ppt-label">Layout</label>
+              <select id="ppt-slide-layout" class="ppt-input" onchange="updateSlidePreview()">
+                <option value="title">Title Slide</option>
+                <option value="content" selected>Title + Content</option>
+                <option value="bullets">Title + Bullets</option>
+                <option value="two-col">Two Columns</option>
+                <option value="image">Title + Image</option>
+                <option value="blank">Blank</option>
+              </select>
+            </div>
+          </div>
+          <label class="ppt-label">Content / Body</label>
+          <textarea id="ppt-slide-body" class="ppt-textarea" placeholder="Slide content… (for bullets, one item per line)" oninput="updateSlidePreview()"></textarea>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px">
+            <div>
+              <label class="ppt-label">Background</label>
+              <input type="color" id="ppt-slide-bg" value="#0f1018" class="ppt-color-input" oninput="updateSlidePreview()"/>
+            </div>
+            <div>
+              <label class="ppt-label">Text Color</label>
+              <input type="color" id="ppt-slide-fg" value="#e4e6f4" class="ppt-color-input" oninput="updateSlidePreview()"/>
+            </div>
+            <div>
+              <label class="ppt-label">Accent</label>
+              <input type="color" id="ppt-slide-accent" value="#4f8eff" class="ppt-color-input" oninput="updateSlidePreview()"/>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn-primary btn-sm" onclick="saveCurrentSlide()">Save Slide</button>
+            <button class="btn-outline btn-sm" onclick="duplicateCurrentSlide()">Duplicate</button>
+            <button class="btn-outline btn-sm" style="color:var(--red)" onclick="deleteCurrentSlide()">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Templates -->
+  <div class="bm-tab-content" id="bm-tab-ppt-templates">
+    <div style="padding:20px">
+      <div style="font-size:14px;color:var(--text2);margin-bottom:16px">Choose a template to start with a complete presentation structure:</div>
+      <div class="ppt-template-grid" id="ppt-template-grid"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── EMAIL GENERATOR ─── -->
+<section class="panel" id="panel-emailgen">
+  <header class="panel-header">
+    <div class="panel-title-group"><h1 class="panel-title">Email Generator</h1><p class="panel-sub">AI-crafted emails for every situation</p></div>
+    <div class="panel-actions">
+      <button class="btn-outline btn-sm" onclick="switchPanel('apps')">← Apps</button>
+    </div>
+  </header>
+  <div class="email-gen-layout">
+    <!-- Config panel -->
+    <div class="email-config-panel">
+      <div class="email-config-section">
+        <label class="ppt-label">Email Type</label>
+        <select id="email-type" class="ppt-input">
+          <option value="request">📋 Request / Ask</option>
+          <option value="followup">🔄 Follow-up</option>
+          <option value="complaint">⚠️ Complaint</option>
+          <option value="apology">🙏 Apology</option>
+          <option value="introduction">👋 Introduction</option>
+          <option value="proposal">💼 Business Proposal</option>
+          <option value="decline">🚫 Polite Decline</option>
+          <option value="appreciation">🌟 Appreciation / Thanks</option>
+          <option value="inquiry">❓ Inquiry</option>
+          <option value="resignation">📝 Resignation</option>
+          <option value="cover">📄 Cover Letter</option>
+          <option value="custom">✏️ Custom / Other</option>
+        </select>
+      </div>
+      <div class="email-config-section">
+        <label class="ppt-label">Tone</label>
+        <div class="tone-grid">
+          <label class="tone-opt"><input type="radio" name="email-tone" value="formal" checked/> Formal</label>
+          <label class="tone-opt"><input type="radio" name="email-tone" value="professional"/> Professional</label>
+          <label class="tone-opt"><input type="radio" name="email-tone" value="friendly"/> Friendly</label>
+          <label class="tone-opt"><input type="radio" name="email-tone" value="assertive"/> Assertive</label>
+          <label class="tone-opt"><input type="radio" name="email-tone" value="empathetic"/> Empathetic</label>
+          <label class="tone-opt"><input type="radio" name="email-tone" value="casual"/> Casual</label>
+        </div>
+      </div>
+      <div class="email-config-section">
+        <label class="ppt-label">Recipient</label>
+        <input type="text" id="email-recipient" class="ppt-input" placeholder="e.g. Manager, HR, Client, Professor…"/>
+      </div>
+      <div class="email-config-section">
+        <label class="ppt-label">Your Name / Role <span style="color:var(--text3);font-weight:400">(optional)</span></label>
+        <input type="text" id="email-sender" class="ppt-input" placeholder="e.g. John, Senior Developer…"/>
+      </div>
+      <div class="email-config-section">
+        <label class="ppt-label">Key Points to Convey <span style="color:var(--red)">*</span></label>
+        <textarea id="email-points" class="ppt-textarea" style="height:100px" placeholder="What do you want to say?&#10;&#10;e.g.:&#10;• Requesting a 3-day extension on the project deadline&#10;• Reason: team member sick, waiting on vendor&#10;• Happy to discuss timeline adjustment"></textarea>
+      </div>
+      <div class="email-config-section">
+        <label class="ppt-label">Length</label>
+        <select id="email-length" class="ppt-input">
+          <option value="short">Short (2-3 paragraphs)</option>
+          <option value="medium" selected>Medium (3-5 paragraphs)</option>
+          <option value="long">Detailed (5+ paragraphs)</option>
+        </select>
+      </div>
+      <button class="btn-primary" style="width:100%;margin-top:4px" onclick="generateEmail()">🤖 Generate Email</button>
+    </div>
+    <!-- Output panel -->
+    <div class="email-output-panel">
+      <div id="email-output-area">
+        <div class="ppt-empty-state" style="height:100%">
+          <div style="font-size:48px">✉️</div>
+          <p>Fill in the details and click<br/><strong>Generate Email</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI Slide Generation Modal -->
+<div class="modal-overlay" id="ai-slide-modal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header"><h2>🤖 AI Slide Generator</h2><button class="modal-close" onclick="closeModal('ai-slide-modal')">✕</button></div>
+    <div class="modal-body">
+      <label>Presentation Topic / Goal <span class="req">*</span></label>
+      <input type="text" id="ai-slide-topic" placeholder="e.g. Q3 Sales Review, Climate Change, Product Launch…"/>
+      <label style="margin-top:12px">Number of Slides</label>
+      <select id="ai-slide-count" class="filter-select" style="width:100%">
+        <option value="5">5 slides</option>
+        <option value="8" selected>8 slides</option>
+        <option value="10">10 slides</option>
+        <option value="12">12 slides</option>
+      </select>
+      <label style="margin-top:12px">Audience</label>
+      <input type="text" id="ai-slide-audience" placeholder="e.g. Investors, Students, Management team…"/>
+      <label style="margin-top:12px">Additional Context <span style="color:var(--text3);font-weight:400">(optional)</span></label>
+      <textarea id="ai-slide-context" rows="3" placeholder="Any specific points, data, or requirements…" style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);padding:10px;color:var(--text);font-size:13px;outline:none;resize:none;margin-top:6px"></textarea>
+      <div id="ai-slide-status" style="margin-top:10px;font-size:13px;color:var(--text3)"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('ai-slide-modal')">Cancel</button>
+      <button class="btn-primary" onclick="generateAISlides()">Generate Slides</button>
+    </div>
+  </div>
+</div>
+
+<!-- PptxGenJS for .pptx export -->
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js" defer></script>
+<!-- JSZip required by epub.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
+<!-- epub.js for EPUB book reading -->
+<script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js" defer></script>
+<!-- Wavesurfer.js for music waveform player -->
+<script src="https://cdn.jsdelivr.net/npm/wavesurfer.js@7/dist/wavesurfer.min.js" defer></script>
+<!-- Main app — runs after DOM is fully ready -->
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Nexmark — Sign In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#09090f;--bg2:#0f1018;--bg3:#161924;--bg4:#1c2133;
+  --border:#1e2335;--border2:#252c40;
+  --text:#e4e6f4;--text2:#7880a4;--text3:#3a4060;
+  --accent:#4f8eff;--accent2:#2d5fd4;
+  --green:#22d3a0;--red:#ff4f6e;
+  --font:'Syne',sans-serif;--mono:'Fira Code',monospace;
+  --r:12px;--r-sm:8px;--t:.16s cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text)}
+body{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;overflow-y:auto;padding:20px;
+  background-image:
+    radial-gradient(ellipse 70% 50% at 20% 60%,rgba(79,142,255,.07) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 70% at 80% 30%,rgba(168,85,247,.05) 0%,transparent 70%);
+}
+
+.card{
+  width:100%;max-width:420px;
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:20px;padding:40px 36px;
+  box-shadow:0 40px 80px rgba(0,0,0,.5);
+}
+.logo{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.logo-mark{
+  width:48px;height:48px;border-radius:14px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;box-shadow:0 8px 20px rgba(79,142,255,.25);
+}
+.logo-text{font-size:28px;font-weight:800;letter-spacing:-.5px}
+.logo-text span{color:var(--accent)}
+.tagline{font-size:13px;color:var(--text2);margin-bottom:32px;line-height:1.5}
+.tabs{display:flex;gap:0;margin-bottom:24px;background:var(--bg3);border-radius:var(--r-sm);padding:3px}
+.tab{
+  flex:1;padding:9px;text-align:center;border-radius:6px;
+  font-size:13px;font-weight:700;cursor:pointer;
+  transition:all var(--t);color:var(--text3);background:transparent;border:none;font-family:var(--font);
+}
+.tab.active{background:var(--bg2);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.form-group{margin-bottom:16px}
+label{display:block;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
+input{
+  width:100%;background:var(--bg3);border:1px solid var(--border2);
+  border-radius:var(--r-sm);padding:12px 14px;color:var(--text);
+  font-family:var(--font);font-size:14px;outline:none;
+  transition:border-color var(--t);
+}
+input:focus{border-color:var(--accent)}
+input::placeholder{color:var(--text3)}
+.btn{
+  width:100%;padding:13px;border-radius:var(--r-sm);border:none;
+  font-family:var(--font);font-size:15px;font-weight:700;
+  cursor:pointer;transition:all var(--t);margin-top:4px;
+}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover:not(:disabled){background:var(--accent2);transform:translateY(-1px);box-shadow:0 8px 24px rgba(79,142,255,.3)}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed}
+.divider{display:flex;align-items:center;gap:12px;color:var(--text3);font-size:11px;margin:20px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border2)}
+.error-msg{color:var(--red);font-size:13px;margin-top:10px;padding:10px 12px;background:rgba(255,79,110,.08);border-radius:var(--r-sm);border:1px solid rgba(255,79,110,.2);display:none}
+.success-msg{color:var(--green);font-size:13px;margin-top:10px;padding:10px 12px;background:rgba(34,211,160,.08);border-radius:var(--r-sm);border:1px solid rgba(34,211,160,.2);display:none}
+.loading{display:none;text-align:center;color:var(--text2);font-size:13px;padding:10px 0}
+.spin{animation:spin 1s linear infinite;display:inline-block}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.features{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:28px}
+.feature{background:var(--bg3);border-radius:var(--r-sm);padding:10px 12px;border:1px solid var(--border)}
+.feature-icon{font-size:18px;margin-bottom:4px}
+.feature-name{font-size:11px;font-weight:700;color:var(--text2)}
+.setup-note{font-size:11px;color:var(--text3);line-height:1.6;margin-top:16px;padding:10px 12px;background:var(--bg3);border-radius:var(--r-sm);border:1px solid var(--border)}
+.setup-note a{color:var(--accent);text-decoration:none}
+.setup-note code{background:var(--bg4);padding:1px 4px;border-radius:3px;font-family:var(--mono);font-size:10px}
+.offline-btn{
+  width:100%;padding:11px;border-radius:var(--r-sm);
+  background:transparent;border:1px solid var(--border2);
+  color:var(--text2);font-family:var(--font);font-size:13px;font-weight:600;
+  cursor:pointer;transition:all var(--t);margin-top:8px;
+}
+.offline-btn:hover{background:var(--bg3);color:var(--text);border-color:var(--accent)}
+.page-hidden{display:none}
+</style>
+</head>
+<body>
+<div class="card">
+  <!-- Logo -->
+  <div class="logo">
+    <div class="logo-mark">⬡</div>
+    <div class="logo-text">Nex<span>mark</span></div>
+  </div>
+  <div class="tagline">Your personal digital workspace.<br/>Sign in to sync everything across all your devices.</div>
+
+  <!-- Feature highlights -->
+  <div class="features">
+    <div class="feature"><div class="feature-icon">🔖</div><div class="feature-name">Bookmarks</div></div>
+    <div class="feature"><div class="feature-icon">📝</div><div class="feature-name">Notes & Todos</div></div>
+    <div class="feature"><div class="feature-icon">📅</div><div class="feature-name">Calendar</div></div>
+    <div class="feature"><div class="feature-icon">🤖</div><div class="feature-name">AI Tools</div></div>
+    <div class="feature"><div class="feature-icon">📊</div><div class="feature-name">Presentations</div></div>
+    <div class="feature"><div class="feature-icon">🔄</div><div class="feature-name">Live Sync</div></div>
+  </div>
+
+  <!-- Auth tabs -->
+  <div class="tabs">
+    <button class="tab active" id="tab-signin" onclick="switchAuthTab('signin')">Sign In</button>
+    <button class="tab" id="tab-signup" onclick="switchAuthTab('signup')">Create Account</button>
+  </div>
+
+  <!-- Sign In form -->
+  <div id="form-signin">
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="signin-email" placeholder="you@email.com" autocomplete="email"/>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="signin-password" placeholder="••••••••" autocomplete="current-password"
+             onkeydown="if(event.key==='Enter')doSignIn()"/>
+    </div>
+    <button class="btn btn-primary" id="signin-btn" onclick="doSignIn()">Sign In →</button>
+    <div class="error-msg" id="signin-error"></div>
+    <div class="loading" id="signin-loading"><span class="spin">⚙️</span> Signing in…</div>
+  </div>
+
+  <!-- Sign Up form -->
+  <div id="form-signup" class="page-hidden">
+    <div class="form-group">
+      <label>Display Name</label>
+      <input type="text" id="signup-name" placeholder="Your name" autocomplete="name"/>
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="signup-email" placeholder="you@email.com" autocomplete="email"/>
+    </div>
+    <div class="form-group">
+      <label>Password <span style="color:var(--text3);font-weight:400;text-transform:none">(min 6 chars)</span></label>
+      <input type="password" id="signup-password" placeholder="Choose a password" autocomplete="new-password"
+             onkeydown="if(event.key==='Enter')doSignUp()"/>
+    </div>
+    <button class="btn btn-primary" id="signup-btn" onclick="doSignUp()">Create Account →</button>
+    <div class="error-msg" id="signup-error"></div>
+    <div class="success-msg" id="signup-success"></div>
+    <div class="loading" id="signup-loading"><span class="spin">⚙️</span> Creating account…</div>
+  </div>
+
+  <div class="divider">or</div>
+  <button class="offline-btn" onclick="useOffline()">Continue without account (local only)</button>
+
+  <div class="setup-note">
+    <strong>First time?</strong> Sync requires a free Supabase account.<br/>
+    See <a href="index.html#settings" onclick="useOffline()">Settings → Account & Sync</a> for setup instructions, or use the app locally without signing in.
+  </div>
+</div>
+
+<script>
+// ── Config — reads saved Supabase credentials ──
+let SBC = null;
+
+async function initSupabase(){
+  const url = localStorage.getItem('nx_sb_url');
+  const key = localStorage.getItem('nx_sb_anon');
+  if(!url || !key) return false;
+
+  if(!window.supabase){
+    await new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+      s.onload=res;s.onerror=rej;
+      document.head.appendChild(s);
+    });
+  }
+  SBC = supabase.createClient(url, key);
+  return true;
+}
+
+// Check if already signed in on load
+window.addEventListener('load', async ()=>{
+  const ok = await initSupabase().catch(()=>false);
+  if(!ok) return; // no credentials — stay on login page
+  const {data:{session}} = await SBC.auth.getSession().catch(()=>({data:{session:null}}));
+  if(session){
+    // Already signed in — go straight to app
+    localStorage.setItem('nx_session_user', JSON.stringify({
+      id: session.user.id,
+      email: session.user.email,
+      name: session.user.user_metadata?.name || session.user.email.split('@')[0],
+    }));
+    window.location.replace('index.html');
+  }
+});
+
+function switchAuthTab(tab){
+  document.getElementById('tab-signin').classList.toggle('active', tab==='signin');
+  document.getElementById('tab-signup').classList.toggle('active', tab==='signup');
+  document.getElementById('form-signin').classList.toggle('page-hidden', tab!=='signin');
+  document.getElementById('form-signup').classList.toggle('page-hidden', tab!=='signup');
+}
+
+function showError(id, msg){ const el=document.getElementById(id); el.textContent=msg; el.style.display='block'; }
+function hideError(id){ document.getElementById(id).style.display='none'; }
+function showSuccess(id, msg){ const el=document.getElementById(id); el.textContent=msg; el.style.display='block'; }
+function showLoading(id){ document.getElementById(id).style.display='block'; }
+function hideLoading(id){ document.getElementById(id).style.display='none'; }
+
+async function doSignIn(){
+  const email = document.getElementById('signin-email').value.trim();
+  const pass  = document.getElementById('signin-password').value;
+  hideError('signin-error');
+  if(!email || !pass){ showError('signin-error','Email and password are required.'); return; }
+
+  const btn = document.getElementById('signin-btn');
+  btn.disabled = true;
+  showLoading('signin-loading');
+
+  const ok = await initSupabase().catch(()=>false);
+  if(!ok){
+    hideLoading('signin-loading');btn.disabled=false;
+    showError('signin-error','Supabase not configured. Set up in Settings first, or use "Continue without account".');
+    return;
+  }
+
+  const {data, error} = await SBC.auth.signInWithPassword({email, password:pass});
+  hideLoading('signin-loading'); btn.disabled=false;
+  if(error){ showError('signin-error', error.message); return; }
+
+  // Save session info
+  const user = data.user;
+  localStorage.setItem('nx_session_user', JSON.stringify({
+    id: user.id, email: user.email,
+    name: user.user_metadata?.name || user.email.split('@')[0],
+  }));
+  window.location.replace('index.html');
+}
+
+async function doSignUp(){
+  const name  = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const pass  = document.getElementById('signup-password').value;
+  hideError('signup-error'); hideSuccess('signup-success');
+
+  if(!email || !pass){ showError('signup-error','Email and password are required.'); return; }
+  if(pass.length < 6){ showError('signup-error','Password must be at least 6 characters.'); return; }
+
+  const btn = document.getElementById('signup-btn');
+  btn.disabled=true; showLoading('signup-loading');
+
+  const ok = await initSupabase().catch(()=>false);
+  if(!ok){
+    hideLoading('signup-loading');btn.disabled=false;
+    showError('signup-error','Configure Supabase first in Settings, then come back here.');
+    return;
+  }
+
+  const {data, error} = await SBC.auth.signUp({
+    email, password: pass,
+    options: { data: { name: name || email.split('@')[0] } }
+  });
+  hideLoading('signup-loading'); btn.disabled=false;
+  if(error){ showError('signup-error', error.message); return; }
+
+  if(data.user && data.session){
+    // Immediately signed in (email confirmation disabled)
+    localStorage.setItem('nx_session_user', JSON.stringify({
+      id: data.user.id, email: data.user.email,
+      name: name || data.user.email.split('@')[0],
+    }));
+    window.location.replace('index.html');
+  } else {
+    // Email confirmation needed
+    showSuccess('signup-success', '✓ Check your email to confirm your account, then sign in.');
+    switchAuthTab('signin');
+    document.getElementById('signin-email').value = email;
+  }
+}
+
+function useOffline(){
+  // Mark as offline user and go to app
+  localStorage.setItem('nx_offline_mode','1');
+  localStorage.removeItem('nx_session_user');
+  window.location.replace('index.html');
+}
+
+function hideSuccess(id){ document.getElementById(id).style.display='none'; }
+</script>
+</body>
+</html>
